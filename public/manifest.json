@@ -1,7 +1,7 @@
 {
-  "name": "PS 26050 — C-UAS Mission Control",
-  "short_name": "C-UAS Sentry",
-  "description": "High Altitude Counter-UAS Anti-Drone Mission Control Dashboard",
+  "name": "CoreSense — C-UAS Mission Control",
+  "short_name": "CoreSense",
+  "description": "CoreSense: High Altitude Counter-UAS Anti-Drone Mission Control Dashboard",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#070b12",
