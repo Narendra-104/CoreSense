@@ -186,7 +186,7 @@ export function useTelemetryEngine() {
       severity: 'INFO',
       sensorSource: 'RADAR_FUSION',
       title: 'Station Boot Sequence Complete',
-      details: 'PS 26050 High-Altitude Sentry initialized at 4,850m MSL. PID thermal loop active.',
+      details: 'CoreSense High-Altitude Sentry initialized at 4,850m MSL. PID thermal loop active.',
     },
     {
       id: 'EVT-002',

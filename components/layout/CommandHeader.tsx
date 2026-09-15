@@ -105,7 +105,7 @@ export const CommandHeader: React.FC<CommandHeaderProps> = ({
           <div>
             <div className="flex items-center space-x-2">
               <h1 className="text-sm md:text-base font-bold text-white tracking-wider">
-                CoreSense | PS 26050 — C-UAS 哨兵
+                CoreSense
               </h1>
               <span className="text-[10px] bg-zinc-900 text-cyan-300 border border-zinc-700 px-1.5 py-0.5 rounded font-bold">
                 HIGH-ALTITUDE ANTI-DRONE

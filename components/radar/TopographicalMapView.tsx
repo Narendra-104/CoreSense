@@ -124,7 +124,7 @@ export const TopographicalMapView: React.FC<TopographicalMapViewProps> = ({
           <circle cx="300" cy="300" r="8" fill="#0284c7" stroke="#38bdf8" strokeWidth="2" />
           <circle cx="300" cy="300" r="18" fill="none" stroke="#38bdf8" strokeWidth="1" strokeDasharray="3 3" />
           <text x="300" y="328" fill="#38bdf8" fontSize="9" fontFamily="monospace" textAnchor="middle" fontWeight="bold">
-            PS 26050 SENTRY HQ [4,850m]
+            CORESENSE SENTRY HQ [4,850m]
           </text>
 
           {/* LoRa Mesh Forward Relay Sentry Nodes */}
