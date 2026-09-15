@@ -1,6 +1,0 @@
-{
-  "name": "HyperTour AI",
-  "description": "Smart AI Hub Tourist Platform for verified bookings, anti-price gouging, predictive safety alerts, 112 SOS dispatch, and Bhashini multilingual translation.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
