@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
-import { Radio, Activity, Zap } from 'lucide-react';
+import React, { useRef, useEffect } from 'react';
+import { Radio } from 'lucide-react';
 
 interface RfSpectrumWaterfallProps {
   isJammingActive: boolean;
@@ -41,11 +41,11 @@ export const RfSpectrumWaterfall: React.FC<RfSpectrumWaterfallProps> = ({
       const wh = wCanvas.height;
 
       // 1. Draw Spectrum FFT Line
-      sCtx.fillStyle = '#060a14';
+      sCtx.fillStyle = '#0f172a';
       sCtx.fillRect(0, 0, sw, sh);
 
       // Grid lines & dBm ticks
-      sCtx.strokeStyle = 'rgba(30, 41, 59, 0.7)';
+      sCtx.strokeStyle = 'rgba(51, 65, 85, 0.7)';
       sCtx.lineWidth = 1;
       for (let y = 10; y < sh; y += 18) {
         sCtx.beginPath();
@@ -61,17 +61,14 @@ export const RfSpectrumWaterfall: React.FC<RfSpectrumWaterfallProps> = ({
       sCtx.beginPath();
       for (let i = 0; i < numPoints; i++) {
         const x = (i / (numPoints - 1)) * sw;
-        // Base noise floor around -95 dBm (sh - 15)
         let noise = Math.sin(i * 0.2 + t) * 3 + Math.random() * 4;
         let signalHeight = sh - 15 + noise;
 
-        // Incursion peak at index 45 (~2.437 GHz)
         if (hasHostileSignal && Math.abs(i - 48) < 6) {
           const peak = (6 - Math.abs(i - 48)) * (isJammingActive ? 10 : 8);
           signalHeight -= peak;
         }
 
-        // Active jamming broad carrier
         if (isJammingActive && i >= 40 && i <= 60) {
           signalHeight -= (Math.random() * 25 + 35);
         }
@@ -82,14 +79,13 @@ export const RfSpectrumWaterfall: React.FC<RfSpectrumWaterfallProps> = ({
         else sCtx.lineTo(x, signalHeight);
       }
 
-      // Draw gradient under FFT line
       sCtx.lineTo(sw, sh);
       sCtx.lineTo(0, sh);
       sCtx.closePath();
 
       const gradient = sCtx.createLinearGradient(0, 0, 0, sh);
-      gradient.addColorStop(0, isJammingActive ? 'rgba(239, 68, 68, 0.5)' : hasHostileSignal ? 'rgba(245, 158, 11, 0.4)' : 'rgba(16, 185, 129, 0.25)');
-      gradient.addColorStop(1, 'rgba(6, 10, 20, 0.0)');
+      gradient.addColorStop(0, isJammingActive ? 'rgba(239, 68, 68, 0.5)' : hasHostileSignal ? 'rgba(245, 158, 11, 0.4)' : 'rgba(14, 165, 233, 0.35)');
+      gradient.addColorStop(1, 'rgba(15, 23, 42, 0.0)');
       sCtx.fillStyle = gradient;
       sCtx.fill();
 
@@ -100,23 +96,21 @@ export const RfSpectrumWaterfall: React.FC<RfSpectrumWaterfallProps> = ({
         if (i === 0) sCtx.moveTo(px, py);
         else sCtx.lineTo(px, py);
       });
-      sCtx.strokeStyle = isJammingActive ? '#ef4444' : hasHostileSignal ? '#f59e0b' : '#10b981';
+      sCtx.strokeStyle = isJammingActive ? '#f43f5e' : hasHostileSignal ? '#f59e0b' : '#38bdf8';
       sCtx.lineWidth = 1.5;
       sCtx.stroke();
 
-      // 2. Shift Waterfall Downwards
-      // Copy current waterfall image down by 1px
+      // 2. Waterfall
       wCtx.drawImage(wCanvas, 0, 0, ww, wh - 1, 0, 1, ww, wh - 1);
 
-      // Draw new top row
       for (let i = 0; i < numPoints; i++) {
         const x = (i / (numPoints - 1)) * ww;
         const widthPx = Math.ceil(ww / numPoints);
-        const signalVal = (sh - points[i]) / sh; // 0 to 1
+        const signalVal = (sh - points[i]) / sh;
 
-        let r = 10;
-        let g = 20;
-        let b = 40;
+        let r = 15;
+        let g = 23;
+        let b = 42;
 
         if (isJammingActive && i >= 40 && i <= 60) {
           r = Math.floor(220 + Math.random() * 35);
@@ -128,7 +122,7 @@ export const RfSpectrumWaterfall: React.FC<RfSpectrumWaterfallProps> = ({
           b = 40;
         } else {
           g = Math.floor(signalVal * 180 + 20);
-          b = Math.floor(signalVal * 150 + 40);
+          b = Math.floor(signalVal * 200 + 40);
         }
 
         wCtx.fillStyle = `rgb(${r}, ${g}, ${b})`;
@@ -146,26 +140,26 @@ export const RfSpectrumWaterfall: React.FC<RfSpectrumWaterfallProps> = ({
   }, [isJammingActive, hasHostileSignal, selectedBand]);
 
   return (
-    <div className="bg-tactical-panel border border-tactical-panelBorder rounded-lg p-3 shadow-lg flex flex-col space-y-2 font-mono">
+    <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-sm flex flex-col space-y-2.5 font-mono">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
         <div className="flex items-center space-x-2">
-          <Radio className="w-4 h-4 text-cyan-400" />
-          <span className="text-xs font-bold text-cyan-400 tracking-wider">
-            SDR RF SPECTRUM & WATERFALL SCANNER
+          <Radio className="w-4 h-4 text-sky-600" />
+          <span className="text-xs font-bold text-slate-900 tracking-wide">
+            SDR RF SPECTRUM & WATERFALL
           </span>
         </div>
 
         {/* Band Filters */}
-        <div className="flex rounded bg-zinc-900 border border-zinc-800 p-0.5 text-[9px]">
+        <div className="flex rounded-md bg-slate-100 border border-slate-200 p-0.5 text-[10px]">
           {(['ALL', '2.4G', '5.8G', 'GNSS'] as const).map((b) => (
             <button
               key={b}
               onClick={() => setSelectedBand(b)}
-              className={`px-1.5 py-0.5 rounded transition ${
+              className={`px-2 py-0.5 rounded transition font-medium ${
                 selectedBand === b
-                  ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-sky-600 text-white font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               {b}
@@ -176,51 +170,51 @@ export const RfSpectrumWaterfall: React.FC<RfSpectrumWaterfallProps> = ({
 
       {/* Spectrum Analyzer Display */}
       <div className="space-y-1">
-        <div className="flex justify-between items-center text-[9px] text-zinc-400">
-          <span>REAL-TIME FFT POWER DENSITY [dBm]</span>
-          <span className={isJammingActive ? 'text-red-400 font-bold' : hasHostileSignal ? 'text-amber-400 font-bold' : 'text-emerald-400'}>
-            {isJammingActive ? '⚡ JAMMING BURST ACTIVE' : hasHostileSignal ? '⚠ FHSS HOPPING BURST DETECTED' : 'QUIET SPECTRUM'}
+        <div className="flex justify-between items-center text-[10px] text-slate-500 font-medium">
+          <span>FFT POWER DENSITY [dBm]</span>
+          <span className={isJammingActive ? 'text-rose-600 font-bold' : hasHostileSignal ? 'text-amber-700 font-bold' : 'text-emerald-700 font-bold'}>
+            {isJammingActive ? '⚡ JAMMING EMISSION' : hasHostileSignal ? '⚠ FHSS BURST DETECTED' : 'QUIET SPECTRUM'}
           </span>
         </div>
         <canvas
           ref={spectrumCanvasRef}
           width={380}
-          height={70}
-          className="w-full h-[70px] rounded border border-zinc-800 bg-[#060a14]"
+          height={65}
+          className="w-full h-[65px] rounded-lg border border-slate-700 bg-slate-900"
         />
       </div>
 
       {/* Waterfall Display */}
       <div className="space-y-1">
-        <div className="flex justify-between items-center text-[9px] text-zinc-400">
-          <span>TIME-FREQUENCY WATERFALL [400 MHz – 6.0 GHz]</span>
-          <span>SDR: AD9361 (200 MS/s)</span>
+        <div className="flex justify-between items-center text-[10px] text-slate-500 font-medium">
+          <span>WATERFALL [400 MHz – 6.0 GHz]</span>
+          <span>AD9361 SDR (200 MS/s)</span>
         </div>
         <canvas
           ref={waterfallCanvasRef}
           width={380}
-          height={80}
-          className="w-full h-[80px] rounded border border-zinc-800 bg-[#060a14]"
+          height={75}
+          className="w-full h-[75px] rounded-lg border border-slate-700 bg-slate-900"
         />
       </div>
 
       {/* Active RF Signatures Bar */}
-      <div className="grid grid-cols-3 gap-1 text-[8px] bg-zinc-950/70 p-1.5 rounded border border-zinc-800">
+      <div className="grid grid-cols-3 gap-1.5 text-[10px] bg-slate-50 p-2 rounded-lg border border-slate-200">
         <div>
-          <span className="text-zinc-500 block">2.437 GHz (CH6)</span>
-          <span className={hasHostileSignal ? 'text-amber-400 font-bold' : 'text-zinc-400'}>
-            {hasHostileSignal ? 'OcuSync C2 Peak' : 'Noise Floor'}
+          <span className="text-slate-500 block text-[9px] font-medium">2.437 GHz (CH6)</span>
+          <span className={hasHostileSignal ? 'text-amber-700 font-bold' : 'text-slate-600'}>
+            {hasHostileSignal ? 'OcuSync C2' : 'Noise Floor'}
           </span>
         </div>
         <div>
-          <span className="text-zinc-500 block">1575.42 MHz (L1)</span>
-          <span className={isJammingActive ? 'text-red-400 font-bold' : 'text-emerald-400'}>
-            {isJammingActive ? 'GPS Denial Active' : 'GNSS Lock OK'}
+          <span className="text-slate-500 block text-[9px] font-medium">1575.42 MHz (L1)</span>
+          <span className={isJammingActive ? 'text-rose-700 font-bold' : 'text-emerald-700 font-bold'}>
+            {isJammingActive ? 'Denial Active' : 'GNSS Lock OK'}
           </span>
         </div>
         <div>
-          <span className="text-zinc-500 block">5.745 GHz (ISM)</span>
-          <span className="text-zinc-400">HD Downlink Standby</span>
+          <span className="text-slate-500 block text-[9px] font-medium">5.745 GHz (ISM)</span>
+          <span className="text-slate-600">HD Standby</span>
         </div>
       </div>
     </div>

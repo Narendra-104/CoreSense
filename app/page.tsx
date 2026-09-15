@@ -66,7 +66,7 @@ export default function MissionControlDashboard() {
   const isTargetMitigated = tracks.some((t) => t.isMitigated);
 
   return (
-    <div className="min-h-screen bg-[#070b12] text-slate-100 flex flex-col font-mono selection:bg-cyan-500 selection:text-black">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-mono selection:bg-sky-200 selection:text-slate-900">
       {/* Command Header */}
       <CommandHeader
         network={network}

@@ -7,12 +7,7 @@ import {
   Radio,
   Volume2,
   Camera,
-  Activity,
   Zap,
-  ShieldAlert,
-  ArrowUpRight,
-  Wifi,
-  Disc,
   X,
 } from 'lucide-react';
 
@@ -41,115 +36,115 @@ export const TargetInspectionDrawer: React.FC<TargetInspectionDrawerProps> = ({
   const isFriendly = track.classification === 'FRIENDLY_UAV';
 
   const badgeColor = isNeutralized
-    ? 'bg-slate-800 text-slate-300 border-slate-700'
+    ? 'bg-slate-100 text-slate-700 border-slate-300'
     : isHostile
-    ? 'bg-red-950 text-red-400 border-red-800 animate-pulse'
+    ? 'bg-rose-100 text-rose-800 border-rose-300 font-bold'
     : isElevated
-    ? 'bg-amber-950 text-amber-400 border-amber-800'
+    ? 'bg-amber-100 text-amber-800 border-amber-300 font-bold'
     : isFriendly
-    ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
-    : 'bg-cyan-950 text-cyan-400 border-cyan-800';
+    ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold'
+    : 'bg-sky-100 text-sky-800 border-sky-300 font-bold';
 
   return (
-    <div className="bg-tactical-panel border border-tactical-panelBorder rounded-lg p-3 shadow-2xl flex flex-col space-y-3 font-mono">
+    <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-sm flex flex-col space-y-3 font-mono">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
         <div className="flex items-center space-x-2">
-          <Crosshair className={`w-4 h-4 ${isHostile ? 'text-red-400' : 'text-emerald-400'}`} />
+          <Crosshair className={`w-4 h-4 ${isHostile ? 'text-rose-600' : 'text-emerald-600'}`} />
           <div>
             <div className="flex items-center space-x-2">
-              <span className="text-xs font-bold text-white tracking-wider">{track.callsign}</span>
-              <span className="text-[10px] text-zinc-500">[{track.id}]</span>
+              <span className="text-xs font-bold text-slate-900 tracking-wide">{track.callsign}</span>
+              <span className="text-[10px] text-slate-500">[{track.id}]</span>
             </div>
-            <span className="text-[9px] text-zinc-400">Detected: {track.firstDetectedAt}</span>
+            <span className="text-[10px] text-slate-500">Detected: {track.firstDetectedAt}</span>
           </div>
         </div>
 
         <div className="flex items-center space-x-2">
-          <span className={`text-[10px] px-2 py-0.5 rounded border font-bold ${badgeColor}`}>
+          <span className={`text-[10px] px-2.5 py-0.5 rounded-full border ${badgeColor}`}>
             {track.threatLevel}
           </span>
           <button
             onClick={onClose}
-            className="text-zinc-400 hover:text-white p-1 rounded hover:bg-zinc-800 transition"
+            className="text-slate-400 hover:text-slate-700 p-1 rounded-md hover:bg-slate-100 transition"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
       </div>
 
       {/* Kinematics Grid */}
-      <div className="grid grid-cols-4 gap-1.5 bg-zinc-950/70 p-2 rounded border border-zinc-800/80 text-[10px]">
+      <div className="grid grid-cols-4 gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[11px]">
         <div>
-          <span className="text-zinc-500 block text-[9px]">RANGE</span>
-          <span className="text-white font-bold">{track.rangeMeters.toLocaleString()} m</span>
+          <span className="text-slate-500 block text-[9px] font-medium">RANGE</span>
+          <span className="text-slate-900 font-bold">{track.rangeMeters.toLocaleString()} m</span>
         </div>
         <div>
-          <span className="text-zinc-500 block text-[9px]">AZIMUTH / ELEV</span>
-          <span className="text-cyan-400 font-bold">{track.azimuthDeg}° / {track.elevationDeg}°</span>
+          <span className="text-slate-500 block text-[9px] font-medium">AZIMUTH / ELEV</span>
+          <span className="text-sky-700 font-bold">{track.azimuthDeg}° / {track.elevationDeg}°</span>
         </div>
         <div>
-          <span className="text-zinc-500 block text-[9px]">ALT (MSL / AGL)</span>
-          <span className="text-amber-400 font-bold">{track.altitudeMslMeters}m / {track.altitudeAglMeters}m</span>
+          <span className="text-slate-500 block text-[9px] font-medium">ALT (MSL / AGL)</span>
+          <span className="text-amber-700 font-bold">{track.altitudeMslMeters}m / {track.altitudeAglMeters}m</span>
         </div>
         <div>
-          <span className="text-zinc-500 block text-[9px]">GROUND SPEED</span>
-          <span className="text-emerald-400 font-bold">{track.groundSpeedKmh} km/h</span>
+          <span className="text-slate-500 block text-[9px] font-medium">GROUND SPEED</span>
+          <span className="text-emerald-700 font-bold">{track.groundSpeedKmh} km/h</span>
         </div>
       </div>
 
       {/* Multi-Sensor Breakdown */}
-      <div className="space-y-2 text-[10px]">
-        <span className="text-zinc-400 text-[9px] tracking-wider block font-bold">
+      <div className="space-y-2 text-[11px]">
+        <span className="text-slate-600 text-[10px] tracking-wider block font-bold">
           MULTI-SENSOR CORRELATION & SIGNATURE MATCH
         </span>
 
         {/* RF Signature */}
-        <div className="flex items-center justify-between bg-zinc-900/60 px-2 py-1.5 rounded border border-zinc-800">
-          <div className="flex items-center space-x-2">
-            <Radio className="w-3.5 h-3.5 text-cyan-400" />
+        <div className="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
+          <div className="flex items-center space-x-2.5">
+            <Radio className="w-4 h-4 text-sky-600" />
             <div>
-              <span className="text-zinc-300 block text-[10px]">{track.rfProtocol}</span>
-              <span className="text-zinc-500 text-[9px]">{track.rfFrequencyGhz} GHz | RSSI: {track.rfSignalDbm} dBm</span>
+              <span className="text-slate-900 font-semibold block text-[11px]">{track.rfProtocol}</span>
+              <span className="text-slate-500 text-[10px]">{track.rfFrequencyGhz} GHz | RSSI: {track.rfSignalDbm} dBm</span>
             </div>
           </div>
-          <span className="text-cyan-300 font-bold">SDR MATCH</span>
+          <span className="text-sky-700 font-bold text-[10px] bg-sky-50 border border-sky-200 px-2 py-0.5 rounded">SDR MATCH</span>
         </div>
 
         {/* Acoustic Signature */}
-        <div className="flex items-center justify-between bg-zinc-900/60 px-2 py-1.5 rounded border border-zinc-800">
-          <div className="flex items-center space-x-2">
-            <Volume2 className="w-3.5 h-3.5 text-amber-400" />
+        <div className="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
+          <div className="flex items-center space-x-2.5">
+            <Volume2 className="w-4 h-4 text-amber-600" />
             <div>
-              <span className="text-zinc-300 block text-[10px]">Acoustic Rotor Harmonic</span>
-              <span className="text-zinc-500 text-[9px]">Fundamental: {track.acousticHarmonicHz} Hz (4-Blade Quad)</span>
+              <span className="text-slate-900 font-semibold block text-[11px]">Acoustic Rotor Harmonic</span>
+              <span className="text-slate-500 text-[10px]">Fundamental: {track.acousticHarmonicHz} Hz (4-Blade Quad)</span>
             </div>
           </div>
-          <span className="text-amber-400 font-bold">{track.acousticConfidence}% CONF</span>
+          <span className="text-amber-800 font-bold text-[10px] bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">{track.acousticConfidence}% CONF</span>
         </div>
 
         {/* Optical LWIR Signature */}
-        <div className="flex items-center justify-between bg-zinc-900/60 px-2 py-1.5 rounded border border-zinc-800">
-          <div className="flex items-center space-x-2">
-            <Camera className="w-3.5 h-3.5 text-purple-400" />
+        <div className="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
+          <div className="flex items-center space-x-2.5">
+            <Camera className="w-4 h-4 text-purple-600" />
             <div>
-              <span className="text-zinc-300 block text-[10px]">Dual-Band PTZ YOLO-v8</span>
-              <span className="text-zinc-500 text-[9px]">LWIR Microbolometer + Visible HD</span>
+              <span className="text-slate-900 font-semibold block text-[11px]">Dual-Band PTZ YOLO-v8</span>
+              <span className="text-slate-500 text-[10px]">LWIR Microbolometer + Visible HD</span>
             </div>
           </div>
-          <span className="text-purple-300 font-bold">{track.opticalConfidence}% CONF</span>
+          <span className="text-purple-800 font-bold text-[10px] bg-purple-50 border border-purple-200 px-2 py-0.5 rounded">{track.opticalConfidence}% CONF</span>
         </div>
 
         {/* Sensor Fusion Aggregate */}
-        <div className="bg-zinc-950 p-2 rounded border border-zinc-800">
-          <div className="flex justify-between items-center mb-1">
-            <span className="text-zinc-400 text-[9px]">OVERALL FUSION CONFIDENCE</span>
-            <span className="text-white font-bold">{track.fusionConfidence}%</span>
+        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+          <div className="flex justify-between items-center mb-1.5">
+            <span className="text-slate-600 text-[10px] font-medium">OVERALL FUSION CONFIDENCE</span>
+            <span className="text-slate-900 font-bold">{track.fusionConfidence}%</span>
           </div>
-          <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+          <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
             <div
               className={`h-full transition-all duration-500 ${
-                track.fusionConfidence > 90 ? 'bg-red-500' : track.fusionConfidence > 60 ? 'bg-amber-500' : 'bg-emerald-500'
+                track.fusionConfidence > 90 ? 'bg-rose-500' : track.fusionConfidence > 60 ? 'bg-amber-500' : 'bg-emerald-500'
               }`}
               style={{ width: `${track.fusionConfidence}%` }}
             />
@@ -161,10 +156,10 @@ export const TargetInspectionDrawer: React.FC<TargetInspectionDrawerProps> = ({
       <div className="grid grid-cols-2 gap-2 pt-1">
         <button
           onClick={onAutoSlewGimbal}
-          className={`flex items-center justify-center space-x-1.5 py-1.5 px-2 rounded text-[10px] font-bold border transition ${
+          className={`flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg text-[11px] font-bold border transition ${
             isGimbalLocked
-              ? 'bg-purple-950/80 border-purple-600 text-purple-200'
-              : 'bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-purple-900/40 hover:border-purple-600'
+              ? 'bg-purple-600 border-purple-700 text-white'
+              : 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100'
           }`}
         >
           <Camera className="w-3.5 h-3.5" />
@@ -173,10 +168,10 @@ export const TargetInspectionDrawer: React.FC<TargetInspectionDrawerProps> = ({
 
         <button
           onClick={onEngageJammer}
-          className={`flex items-center justify-center space-x-1.5 py-1.5 px-2 rounded text-[10px] font-bold border transition ${
+          className={`flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg text-[11px] font-bold border transition ${
             isJammingActive
-              ? 'bg-red-900/80 border-red-500 text-white animate-pulse'
-              : 'bg-red-950/50 border-red-800/80 text-red-300 hover:bg-red-900 hover:border-red-500'
+              ? 'bg-rose-600 border-rose-700 text-white animate-pulse'
+              : 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100'
           }`}
         >
           <Zap className="w-3.5 h-3.5" />

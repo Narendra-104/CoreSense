@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { TargetTrack } from '@/types/dashboard';
-import { Mountain, EyeOff, Radio, Navigation, AlertTriangle } from 'lucide-react';
+import { Mountain } from 'lucide-react';
 
 interface TopographicalMapViewProps {
   tracks: TargetTrack[];
@@ -18,35 +18,34 @@ export const TopographicalMapView: React.FC<TopographicalMapViewProps> = ({
   onSwitchToPolar,
 }) => {
   return (
-    <div className="relative flex flex-col h-full bg-tactical-panel border border-tactical-panelBorder rounded-lg p-3 shadow-xl overflow-hidden">
+    <div className="relative flex flex-col h-full bg-white border border-slate-200 rounded-xl p-3.5 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80 mb-2">
+      <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 mb-2">
         <div className="flex items-center space-x-2">
-          <Mountain className="w-4 h-4 text-amber-400" />
-          <span className="font-mono text-xs font-bold text-amber-400 tracking-wider">
+          <Mountain className="w-4 h-4 text-amber-600" />
+          <span className="font-mono text-xs font-bold text-slate-900 tracking-wider">
             TOPOGRAPHICAL ELEVATION & RADAR LOS MASKING
           </span>
-          <span className="text-[10px] font-mono text-zinc-500">
+          <span className="text-[10px] font-mono text-slate-500">
             [LADAKH SECTOR / 4,850m MSL]
           </span>
         </div>
 
         <button
           onClick={onSwitchToPolar}
-          className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950/60 text-emerald-300 border border-emerald-700/50 hover:bg-emerald-900/60 transition"
+          className="text-[10px] font-mono px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 transition font-semibold"
         >
           ← SWITCH TO 360° POLAR
         </button>
       </div>
 
-      {/* Interactive Map Visualizer with SVG Terrain & LOS Masking */}
-      <div className="relative flex-1 flex items-center justify-center min-h-[360px] bg-[#060a14] rounded-lg border border-zinc-800 overflow-hidden">
+      {/* Interactive Map Visualizer */}
+      <div className="relative flex-1 flex items-center justify-center min-h-[360px] bg-slate-900 rounded-xl p-2 overflow-hidden">
         <svg
           viewBox="0 0 600 600"
           className="w-full h-full max-w-[500px] aspect-square select-none"
         >
           <defs>
-            {/* Mountain Elevation Gradient */}
             <radialGradient id="mountainPeakNorth" cx="50%" cy="30%" r="50%">
               <stop offset="0%" stopColor="#78350f" stopOpacity="0.8" />
               <stop offset="50%" stopColor="#451a03" stopOpacity="0.5" />
@@ -58,19 +57,16 @@ export const TopographicalMapView: React.FC<TopographicalMapViewProps> = ({
               <stop offset="100%" stopColor="#0b1322" stopOpacity="0.0" />
             </radialGradient>
 
-            {/* Radar Shadow Mask Gradient */}
             <linearGradient id="losShadowNorth" x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="#ef4444" stopOpacity="0.25" />
               <stop offset="100%" stopColor="#7f1d1d" stopOpacity="0.05" />
             </linearGradient>
 
-            {/* Radar LOS Cone Pattern */}
             <pattern id="radarGrid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(16, 185, 129, 0.07)" strokeWidth="1" />
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(148, 163, 184, 0.12)" strokeWidth="1" />
             </pattern>
           </defs>
 
-          {/* Grid background */}
           <rect width="600" height="600" fill="url(#radarGrid)" />
 
           {/* Elevation Shading for Mountain Ridges */}
@@ -78,75 +74,68 @@ export const TopographicalMapView: React.FC<TopographicalMapViewProps> = ({
           <ellipse cx="440" cy="380" rx="140" ry="100" fill="url(#mountainPeakEast)" />
           <ellipse cx="150" cy="420" rx="120" ry="90" fill="url(#mountainPeakNorth)" opacity="0.6" />
 
-          {/* Topographical Contour Lines (Elevation Rings) */}
-          <g stroke="rgba(245, 158, 11, 0.35)" strokeWidth="1" fill="none" strokeDasharray="3 3">
-            {/* North Ridge: Khardung Peak 5,359m */}
+          {/* Topographical Contour Lines */}
+          <g stroke="rgba(245, 158, 11, 0.45)" strokeWidth="1" fill="none" strokeDasharray="3 3">
             <path d="M 160 210 Q 300 130 440 210 Q 380 270 240 260 Z" />
-            <path d="M 200 195 Q 300 145 400 195 Q 350 240 260 235 Z" stroke="rgba(245, 158, 11, 0.5)" />
-            <path d="M 250 185 Q 300 160 350 185 Q 330 215 280 210 Z" stroke="rgba(245, 158, 11, 0.7)" />
+            <path d="M 200 195 Q 300 145 400 195 Q 350 240 260 235 Z" stroke="rgba(245, 158, 11, 0.6)" />
+            <path d="M 250 185 Q 300 160 350 185 Q 330 215 280 210 Z" stroke="rgba(245, 158, 11, 0.8)" />
 
-            {/* East Ridge: Chang La Spur 5,200m */}
             <path d="M 360 350 Q 480 300 540 400 Q 460 480 380 430 Z" />
-            <path d="M 390 365 Q 470 330 510 400 Q 450 450 400 415 Z" stroke="rgba(245, 158, 11, 0.5)" />
+            <path d="M 390 365 Q 470 330 510 400 Q 450 450 400 415 Z" stroke="rgba(245, 158, 11, 0.6)" />
 
-            {/* Southwest Ridge */}
             <path d="M 70 410 Q 180 360 230 450 Q 170 510 90 470 Z" />
           </g>
 
           {/* Elevation Labels */}
-          <text x="300" y="175" fill="#f59e0b" fontSize="9" fontFamily="monospace" textAnchor="middle">
+          <text x="300" y="175" fill="#fbbf24" fontSize="10" fontFamily="monospace" textAnchor="middle">
             ▲ KHARDUNG RIDGE [5,359m MSL]
           </text>
-          <text x="450" y="380" fill="#f59e0b" fontSize="9" fontFamily="monospace" textAnchor="middle">
+          <text x="450" y="380" fill="#fbbf24" fontSize="10" fontFamily="monospace" textAnchor="middle">
             ▲ EAST SPUR [5,180m MSL]
           </text>
-          <text x="150" y="430" fill="#f59e0b" fontSize="9" fontFamily="monospace" textAnchor="middle">
+          <text x="150" y="430" fill="#fbbf24" fontSize="10" fontFamily="monospace" textAnchor="middle">
             ▲ VALLEY PASS [4,620m MSL]
           </text>
 
-          {/* Radar Line of Sight (LOS) Shadow / Blind Zones */}
-          {/* Shadow Behind North Ridge */}
+          {/* Radar LOS Shadow */}
           <polygon
             points="240,200 100,50 500,50 360,200"
             fill="url(#losShadowNorth)"
-            stroke="rgba(239, 68, 68, 0.4)"
+            stroke="rgba(244, 63, 94, 0.5)"
             strokeWidth="1"
             strokeDasharray="4 4"
           />
-          <text x="300" y="90" fill="#ef4444" fontSize="10" fontFamily="monospace" textAnchor="middle" fontWeight="bold">
+          <text x="300" y="90" fill="#f43f5e" fontSize="10" fontFamily="monospace" textAnchor="middle" fontWeight="bold">
             ⚠ RADAR BLIND SECTOR (TERRAIN MASKING)
           </text>
-          <text x="300" y="105" fill="#fca5a5" fontSize="8" fontFamily="monospace" textAnchor="middle">
-            RF Shadow behind North Ridge: Low-altitude drones masked from direct 9.4 GHz LOS
+          <text x="300" y="105" fill="#cbd5e1" fontSize="8" fontFamily="monospace" textAnchor="middle">
+            RF Shadow behind North Ridge: Low-altitude drones masked from direct LOS
           </text>
 
-          {/* Station Base Marker (Ladakh Sentry Post 4,850m MSL) */}
+          {/* Station Base Marker */}
           <circle cx="300" cy="300" r="8" fill="#0284c7" stroke="#38bdf8" strokeWidth="2" />
           <circle cx="300" cy="300" r="18" fill="none" stroke="#38bdf8" strokeWidth="1" strokeDasharray="3 3" />
           <text x="300" y="328" fill="#38bdf8" fontSize="9" fontFamily="monospace" textAnchor="middle" fontWeight="bold">
             CORESENSE SENTRY HQ [4,850m]
           </text>
 
-          {/* LoRa Mesh Forward Relay Sentry Nodes */}
+          {/* LoRa Relay Nodes */}
           <g>
-            {/* North Relay */}
             <circle cx="280" cy="190" r="4" fill="#10b981" stroke="#ffffff" strokeWidth="1" />
-            <text x="280" y="180" fill="#10b981" fontSize="8" fontFamily="monospace" textAnchor="middle">
+            <text x="280" y="180" fill="#34d399" fontSize="8" fontFamily="monospace" textAnchor="middle">
               LoRa Relay N-01
             </text>
 
-            {/* East Sentry */}
             <circle cx="430" cy="370" r="4" fill="#10b981" stroke="#ffffff" strokeWidth="1" />
-            <text x="430" y="360" fill="#10b981" fontSize="8" fontFamily="monospace" textAnchor="middle">
+            <text x="430" y="360" fill="#34d399" fontSize="8" fontFamily="monospace" textAnchor="middle">
               LoRa Relay E-02
             </text>
 
-            {/* Connecting Mesh lines */}
             <line x1="300" y1="300" x2="280" y2="190" stroke="rgba(16, 185, 129, 0.4)" strokeWidth="1" strokeDasharray="2 2" />
             <line x1="300" y1="300" x2="430" y2="370" stroke="rgba(16, 185, 129, 0.4)" strokeWidth="1" strokeDasharray="2 2" />
           </g>
 
-          {/* Target Tracks Overlay on Topo Map */}
+          {/* Target Tracks Overlay */}
           {tracks.map((track) => {
             const rad = (track.azimuthDeg - 90) * (Math.PI / 180);
             const distRatio = track.rangeMeters / 5000;
@@ -157,7 +146,7 @@ export const TopographicalMapView: React.FC<TopographicalMapViewProps> = ({
             const isSelected = track.id === selectedTrackId;
             const isHostile = track.threatLevel === 'HOSTILE' || track.threatLevel === 'CRITICAL';
             const isElevated = track.threatLevel === 'ELEVATED';
-            const color = isHostile ? '#ef4444' : isElevated ? '#f59e0b' : '#10b981';
+            const color = isHostile ? '#f43f5e' : isElevated ? '#f59e0b' : '#10b981';
 
             return (
               <g
@@ -165,21 +154,16 @@ export const TopographicalMapView: React.FC<TopographicalMapViewProps> = ({
                 onClick={() => onSelectTrack(track.id)}
                 className="cursor-pointer group"
               >
-                {/* Selection pulse */}
                 {isSelected && (
                   <circle cx={tx} cy={ty} r="16" fill="none" stroke={color} strokeWidth="2" className="animate-ping" />
                 )}
-
-                {/* Target icon */}
                 <circle cx={tx} cy={ty} r="6" fill={color} stroke="#ffffff" strokeWidth="1.5" />
-
-                {/* Target callsign & altitude tag */}
                 <rect
                   x={tx + 10}
                   y={ty - 16}
                   width="130"
                   height="26"
-                  fill="#0b1322"
+                  fill="#0f172a"
                   stroke={color}
                   strokeWidth="1"
                   rx="3"
@@ -196,14 +180,14 @@ export const TopographicalMapView: React.FC<TopographicalMapViewProps> = ({
           })}
         </svg>
 
-        {/* Topo Map Info Badge */}
-        <div className="absolute top-2 left-2 bg-zinc-950/85 border border-zinc-800 rounded p-2 text-[9px] font-mono max-w-[220px] backdrop-blur">
-          <div className="text-amber-300 font-bold mb-1 flex items-center space-x-1">
+        {/* Info Badge */}
+        <div className="absolute top-4 left-4 bg-slate-900/90 border border-slate-700 rounded-md p-2.5 text-[10px] font-mono text-slate-300 max-w-[220px] backdrop-blur shadow-sm">
+          <div className="text-amber-400 font-bold mb-1 flex items-center space-x-1">
             <Mountain className="w-3 h-3" />
             <span>TERRAIN IMPACT MODEL</span>
           </div>
-          <p className="text-zinc-400 leading-tight">
-            High mountain ridges create severe RF multipath & radar shadow zones. LoRaWAN 868MHz forward sentries relay micro-Doppler cueing across masked valley corridors.
+          <p className="text-slate-400 leading-tight">
+            High mountain ridges create radar shadow zones. LoRaWAN 868MHz sentries relay micro-Doppler cueing across masked valley corridors.
           </p>
         </div>
       </div>

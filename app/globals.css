@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --background: #070b12;
-  --foreground: #f8fafc;
+  --background: #f8fafc;
+  --foreground: #0f172a;
 }
 
 body {
@@ -12,33 +12,24 @@ body {
   color: var(--foreground);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   overflow-x: hidden;
-  user-select: none;
 }
 
-/* Custom Tactical Scrollbars */
+/* Clean Light Scrollbars */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #090e17;
+  background: #f1f5f9;
+  border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 2px;
+  background: #cbd5e1;
+  border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #334155;
-}
-
-/* Radar Scanline & Phosphor glow */
-.radar-glow {
-  box-shadow: 0 0 25px rgba(16, 185, 129, 0.15);
-}
-
-.threat-glow {
-  box-shadow: 0 0 25px rgba(239, 68, 68, 0.35);
+  background: #94a3b8;
 }
