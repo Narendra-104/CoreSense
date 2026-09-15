@@ -1,0 +1,16 @@
+{
+  "name": "PS 26050 — C-UAS Mission Control",
+  "short_name": "C-UAS Sentry",
+  "description": "High Altitude Counter-UAS Anti-Drone Mission Control Dashboard",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070b12",
+  "theme_color": "#070b12",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
