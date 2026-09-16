@@ -5,8 +5,8 @@ import { Radio } from 'lucide-react';
 
 interface RfSpectrumWaterfallProps {
   isJammingActive: boolean;
-  selectedBand: '2.4G' | '5.8G' | 'GNSS' | 'ALL';
-  setSelectedBand: (band: '2.4G' | '5.8G' | 'GNSS' | 'ALL') => void;
+  selectedBand: '900M' | '2.4G' | '5.8G' | 'GNSS' | 'ALL';
+  setSelectedBand: (band: '900M' | '2.4G' | '5.8G' | 'GNSS' | 'ALL') => void;
   hasHostileSignal: boolean;
 }
 
@@ -146,13 +146,13 @@ export const RfSpectrumWaterfall: React.FC<RfSpectrumWaterfallProps> = ({
         <div className="flex items-center space-x-2">
           <Radio className="w-4 h-4 text-sky-600" />
           <span className="text-xs font-bold text-slate-900 tracking-wide">
-            SDR RF SPECTRUM & WATERFALL
+            NI ETTUS USRP B210 — SDR ARRAY (×3)
           </span>
         </div>
 
         {/* Band Filters */}
         <div className="flex rounded-md bg-slate-100 border border-slate-200 p-0.5 text-[10px]">
-          {(['ALL', '2.4G', '5.8G', 'GNSS'] as const).map((b) => (
+          {(['ALL', '900M', '2.4G', '5.8G', 'GNSS'] as const).map((b) => (
             <button
               key={b}
               onClick={() => setSelectedBand(b)}
@@ -162,7 +162,7 @@ export const RfSpectrumWaterfall: React.FC<RfSpectrumWaterfallProps> = ({
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              {b}
+              {b === 'GNSS' ? 'GNSS L1/L2' : b}
             </button>
           ))}
         </div>
@@ -187,8 +187,8 @@ export const RfSpectrumWaterfall: React.FC<RfSpectrumWaterfallProps> = ({
       {/* Waterfall Display */}
       <div className="space-y-1">
         <div className="flex justify-between items-center text-[10px] text-slate-500 font-medium">
-          <span>WATERFALL [400 MHz – 6.0 GHz]</span>
-          <span>AD9361 SDR (200 MS/s)</span>
+          <span>WATERFALL [70 MHz – 6.0 GHz]</span>
+          <span>USRP B210 (61.44 MS/s, 2×2 MIMO)</span>
         </div>
         <canvas
           ref={waterfallCanvasRef}
@@ -213,8 +213,8 @@ export const RfSpectrumWaterfall: React.FC<RfSpectrumWaterfallProps> = ({
           </span>
         </div>
         <div>
-          <span className="text-slate-500 block text-[9px] font-medium">5.745 GHz (ISM)</span>
-          <span className="text-slate-600">HD Standby</span>
+          <span className="text-slate-500 block text-[9px] font-medium">5.785 GHz (ISM)</span>
+          <span className="text-slate-600">Video DL Monitor</span>
         </div>
       </div>
     </div>

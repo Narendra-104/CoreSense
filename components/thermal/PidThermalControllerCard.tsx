@@ -84,51 +84,51 @@ export const PidThermalControllerCard: React.FC<PidThermalControllerCardProps> =
             </div>
           </div>
 
-          {/* SDR RF Front-End */}
+          {/* USRP B210 SDR RF Front-End */}
           <div className="flex items-center justify-between bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
             <div className="flex items-center space-x-2">
               <Radio className="w-3.5 h-3.5 text-sky-600" />
-              <span className="text-slate-800">{zones.rfFrontEndSdr.name}</span>
+              <span className="text-slate-800">{zones.usrpB210Sdr.name}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="text-sky-700 font-bold">+{zones.rfFrontEndSdr.currentTempC}°C</span>
-              <span className="text-[9px] text-sky-800 bg-sky-100 px-1.5 py-0.5 rounded font-bold">35% PWM</span>
+              <span className="text-sky-700 font-bold">+{zones.usrpB210Sdr.currentTempC}°C</span>
+              <span className="text-[9px] text-sky-800 bg-sky-100 px-1.5 py-0.5 rounded font-bold">{zones.usrpB210Sdr.heaterDutyPct}% PWM</span>
             </div>
           </div>
 
-          {/* Gimbal Bearings */}
+          {/* XBOOM A30TR1575 Gimbal Bearings */}
           <div className="flex items-center justify-between bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
             <div className="flex items-center space-x-2">
               <Camera className="w-3.5 h-3.5 text-amber-600" />
-              <span className="text-slate-800">{zones.ptzGimbalBearings.name}</span>
+              <span className="text-slate-800">{zones.xboomGimbalBearings.name}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="text-amber-700 font-bold">+{zones.ptzGimbalBearings.currentTempC}°C</span>
-              <span className="text-[9px] text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded font-bold">78% HEATING</span>
+              <span className="text-amber-700 font-bold">+{zones.xboomGimbalBearings.currentTempC}°C</span>
+              <span className="text-[9px] text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded font-bold">{zones.xboomGimbalBearings.heaterDutyPct}% HEATING</span>
             </div>
           </div>
 
-          {/* Germanium Dome */}
+          {/* XBOOM Germanium IR Dome */}
           <div className="flex items-center justify-between bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
             <div className="flex items-center space-x-2">
               <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-              <span className="text-slate-800">{zones.opticalGermaniumDome.name}</span>
+              <span className="text-slate-800">{zones.xboomGermaniumDome.name}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="text-purple-700 font-bold">+{zones.opticalGermaniumDome.currentTempC}°C</span>
+              <span className="text-purple-700 font-bold">+{zones.xboomGermaniumDome.currentTempC}°C</span>
               <span className="text-[9px] text-purple-800 bg-purple-100 px-1.5 py-0.5 rounded font-bold">ANTI-ICE</span>
             </div>
           </div>
 
-          {/* Radome Anti-Ice */}
+          {/* AGT3DRD5000X Ku-Band Radome De-Icer */}
           <div className="flex items-center justify-between bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
             <div className="flex items-center space-x-2">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="text-slate-800">{zones.rfRadomeDeIcer.name}</span>
+              <span className="text-slate-800">{zones.agt3dRadarRadome.name}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="text-emerald-700 font-bold">+{zones.rfRadomeDeIcer.currentTempC}°C</span>
-              <span className="text-[9px] text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded font-bold">60% HEATING</span>
+              <span className="text-emerald-700 font-bold">+{zones.agt3dRadarRadome.currentTempC}°C</span>
+              <span className="text-[9px] text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded font-bold">{zones.agt3dRadarRadome.heaterDutyPct}% HEATING</span>
             </div>
           </div>
         </div>

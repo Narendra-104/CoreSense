@@ -53,10 +53,10 @@ export const PolarRadarCanvas: React.FC<PolarRadarCanvasProps> = ({
 
       // Polar grid rings
       const rings = [
-        { dist: 500, label: '500m (Kinetic/Net)' },
-        { dist: 1500, label: '1.5km (RF Jammer)' },
-        { dist: 3000, label: '3.0km (PTZ Optical)' },
-        { dist: 5000, label: '5.0km (Max RF Scan)' },
+        { dist: 500, label: '500m (RWS Hard-Kill)' },
+        { dist: 1500, label: '1.5km (Guardian-S08)' },
+        { dist: 3000, label: '3.0km (XBOOM LRF)' },
+        { dist: 5000, label: '5.0km (AGT3DRD5000X)' },
       ];
 
       const maxDistMeters = rangeScaleKm * 1000;
@@ -302,10 +302,10 @@ export const PolarRadarCanvas: React.FC<PolarRadarCanvasProps> = ({
         <div className="flex items-center space-x-2">
           <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
           <span className="font-mono text-xs font-bold text-slate-900 tracking-wider">
-            TACTICAL 360° POLAR RADAR
+            FLYSPARK AGT3DRD5000X — 3D RADAR
           </span>
           <span className="text-[10px] font-mono text-slate-500">
-            [FREQ: X-BAND / 9.4 GHz]
+            [KU-BAND / 360° / 5 KM]
           </span>
         </div>
 

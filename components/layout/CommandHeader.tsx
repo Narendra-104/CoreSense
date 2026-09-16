@@ -114,6 +114,30 @@ export const CommandHeader: React.FC<CommandHeaderProps> = ({
                 <span>34.1526° N, 77.5771° E (4,850m MSL)</span>
               </span>
             </div>
+
+            {/* Hardware Status Strip */}
+            <div className="flex items-center space-x-1.5 mt-1.5 flex-wrap gap-y-1">
+              <span className="text-[9px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded font-bold flex items-center space-x-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>AGT3DRD5000X</span>
+              </span>
+              <span className="text-[9px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded font-bold flex items-center space-x-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>USRP B210 ×3</span>
+              </span>
+              <span className="text-[9px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded font-bold flex items-center space-x-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>XBOOM A30TR1575</span>
+              </span>
+              <span className="text-[9px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded font-bold flex items-center space-x-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>GUARDIAN-S08</span>
+              </span>
+              <span className="text-[9px] text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded font-bold flex items-center space-x-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                <span>RWS 35mm</span>
+              </span>
+            </div>
           </div>
         </div>
 

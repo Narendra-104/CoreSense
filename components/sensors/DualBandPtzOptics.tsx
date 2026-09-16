@@ -11,6 +11,8 @@ interface DualBandPtzOpticsProps {
   isMitigated: boolean;
 }
 
+type OpticsMode = '30× EO' | '5× IR' | 'SPLIT' | 'LRF';
+
 export const DualBandPtzOptics: React.FC<DualBandPtzOpticsProps> = ({
   isLocked,
   azimuthDeg,
@@ -18,7 +20,17 @@ export const DualBandPtzOptics: React.FC<DualBandPtzOpticsProps> = ({
   hasHostileTarget,
   isMitigated,
 }) => {
-  const [opticsMode, setOpticsMode] = useState<'LWIR' | 'VISIBLE' | 'SPLIT'>('LWIR');
+  const [opticsMode, setOpticsMode] = useState<OpticsMode>('5× IR');
+
+  const getModeText = () => {
+    switch (opticsMode) {
+      case '30× EO': return '30× EO';
+      case '5× IR': return '5× IR THERMAL';
+      case 'LRF': return 'LRF 10KM';
+      case 'SPLIT': return 'SPLIT';
+      default: return '';
+    }
+  };
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-sm flex flex-col space-y-2.5 font-mono">
@@ -27,13 +39,13 @@ export const DualBandPtzOptics: React.FC<DualBandPtzOpticsProps> = ({
         <div className="flex items-center space-x-2">
           <Camera className="w-4 h-4 text-purple-600" />
           <span className="text-xs font-bold text-slate-900 tracking-wide">
-            DUAL-BAND PTZ OPTICS GIMBAL
+            XBOOM A30TR1575 — TRIPLE SENSOR GIMBAL
           </span>
         </div>
 
         {/* Optics Mode Selector */}
         <div className="flex rounded-md bg-slate-100 border border-slate-200 p-0.5 text-[10px]">
-          {(['LWIR', 'VISIBLE', 'SPLIT'] as const).map((mode) => (
+          {(['30× EO', '5× IR', 'SPLIT', 'LRF'] as const).map((mode) => (
             <button
               key={mode}
               onClick={() => setOpticsMode(mode)}
@@ -51,27 +63,46 @@ export const DualBandPtzOptics: React.FC<DualBandPtzOpticsProps> = ({
 
       {/* Simulated Live Viewport */}
       <div className="relative w-full h-[180px] bg-slate-950 rounded-lg border border-slate-800 overflow-hidden flex items-center justify-center">
-        {opticsMode === 'LWIR' ? (
+        {opticsMode === '5× IR' ? (
           <div className="absolute inset-0 bg-gradient-to-b from-[#140b2b] via-[#24103f] to-[#0d071a]">
             <svg className="absolute inset-0 w-full h-full opacity-40" viewBox="0 0 400 200">
               <path d="M 0 160 Q 120 110 240 150 T 400 130 L 400 200 L 0 200 Z" fill="#3b0764" />
               <path d="M 0 175 Q 180 140 320 180 T 400 165 L 400 200 L 0 200 Z" fill="#581c87" />
             </svg>
           </div>
-        ) : opticsMode === 'VISIBLE' ? (
+        ) : opticsMode === '30× EO' ? (
           <div className="absolute inset-0 bg-gradient-to-b from-[#0c1829] via-[#0f233d] to-[#08101a]">
             <svg className="absolute inset-0 w-full h-full opacity-40" viewBox="0 0 400 200">
               <path d="M 0 160 Q 120 110 240 150 T 400 130 L 400 200 L 0 200 Z" fill="#1e293b" />
             </svg>
           </div>
-        ) : (
+        ) : opticsMode === 'SPLIT' ? (
           <div className="absolute inset-0 grid grid-cols-2">
             <div className="bg-gradient-to-b from-[#140b2b] to-[#0d071a] border-r border-purple-500/30 flex items-start p-1.5">
-              <span className="text-[9px] text-purple-300 bg-purple-950/80 px-1.5 py-0.5 rounded font-medium">LWIR 640x512</span>
+              <span className="text-[9px] text-purple-300 bg-purple-950/80 px-1.5 py-0.5 rounded font-medium">5× IR THERMAL</span>
             </div>
             <div className="bg-gradient-to-b from-[#0c1829] to-[#08101a] flex items-start p-1.5">
-              <span className="text-[9px] text-sky-300 bg-sky-950/80 px-1.5 py-0.5 rounded font-medium">VISIBLE HD</span>
+              <span className="text-[9px] text-sky-300 bg-sky-950/80 px-1.5 py-0.5 rounded font-medium">30× EO HD</span>
             </div>
+          </div>
+        ) : (
+          <div className="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center">
+            {/* LRF Reticle */}
+            <div className="relative w-16 h-16">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[2px] h-4 bg-emerald-400" />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[2px] h-4 bg-emerald-400" />
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] w-4 bg-emerald-400" />
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 h-[2px] w-4 bg-emerald-400" />
+            </div>
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 text-[10px] font-bold text-emerald-400 tracking-widest bg-slate-900/60 px-2 py-1 rounded">
+              LRF RANGING: 10,000m MAX
+            </div>
+            {hasHostileTarget && (
+              <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 text-sm font-bold text-emerald-400 bg-slate-900/80 px-3 py-1 rounded border border-emerald-500/30">
+                LRF: 2,198m
+              </div>
+            )}
           </div>
         )}
 
@@ -91,7 +122,7 @@ export const DualBandPtzOptics: React.FC<DualBandPtzOpticsProps> = ({
             }}
           >
             <div className="relative w-12 h-6 flex items-center justify-center mb-1">
-              {opticsMode !== 'VISIBLE' && (
+              {(opticsMode === '5× IR' || opticsMode === 'SPLIT') && (
                 <>
                   <div className="absolute -top-1 -left-1 w-3 h-3 rounded-full bg-orange-500 blur-[2px] animate-pulse" />
                   <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-orange-500 blur-[2px] animate-pulse" />
@@ -114,13 +145,13 @@ export const DualBandPtzOptics: React.FC<DualBandPtzOpticsProps> = ({
             >
               <div className="flex justify-between text-[9px] font-bold">
                 <span className={isMitigated ? 'text-slate-300' : isLocked ? 'text-rose-400' : 'text-amber-400'}>
-                  {isMitigated ? 'NEUTRALIZED' : 'YOLOv8: HOSTILE'}
+                  {isMitigated ? 'NEUTRALIZED' : 'AI-TRACK: HOSTILE'}
                 </span>
                 <span className="text-white">{isMitigated ? '0 km/h' : '94%'}</span>
               </div>
 
               <div className="text-[8px] text-slate-300 flex justify-between font-medium">
-                <span>RNG: 2,200m</span>
+                <span>LRF: 2,198m</span>
                 <span>T-CORE: +48°C</span>
               </div>
             </div>
@@ -143,12 +174,12 @@ export const DualBandPtzOptics: React.FC<DualBandPtzOpticsProps> = ({
         <div className="absolute bottom-2 left-2 flex items-center space-x-3 text-[10px] text-slate-300 bg-slate-900/80 px-2.5 py-1 rounded-md backdrop-blur">
           <span>AZ: <strong className="text-sky-400">{azimuthDeg.toFixed(1)}°</strong></span>
           <span>EL: <strong className="text-sky-400">+{elevationDeg.toFixed(1)}°</strong></span>
-          <span>FOV: <strong className="text-white">4.2° NFOV</strong></span>
+          <span>MODE: <strong className="text-white">{getModeText()}</strong></span>
         </div>
 
         <div className="absolute top-2 right-2 text-[10px] text-slate-300 bg-slate-900/80 px-2.5 py-1 rounded-md backdrop-blur flex items-center space-x-1.5">
           <div className={`w-2 h-2 rounded-full ${isLocked ? 'bg-rose-500 animate-ping' : 'bg-emerald-400'}`} />
-          <span>{isLocked ? 'AUTOTRACK LOCKED' : 'SEARCH MODE'}</span>
+          <span>{isLocked ? 'XBOOM AI-TRACK LOCKED' : 'XBOOM SEARCH MODE'}</span>
         </div>
       </div>
     </div>

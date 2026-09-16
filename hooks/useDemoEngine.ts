@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { DemoPhase, DemoScenarioState, TargetTrack, IncursionLogEvent, ThreatLevel } from '@/types/dashboard';
+import { DemoPhase, DemoScenarioState, TargetTrack, IncursionLogEvent } from '@/types/dashboard';
 import { soundEngine } from '@/utils/soundSynthesizer';
 
 interface UseDemoEngineProps {
@@ -23,17 +23,17 @@ export function useDemoEngine({
     currentPhase: 0,
     elapsedSeconds: 0,
     playbackSpeed: 1,
-    phaseDescription: 'Phase 0: Baseline High-Altitude Sentry Recon (Clear Skies)',
+    phaseDescription: 'Phase 0: Baseline Sentry — AGT3DRD5000X + USRP B210 ×3 Online',
   });
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const phaseDescriptions: Record<DemoPhase, string> = {
-    0: 'T+0s: Baseline Sentry Recon — 4,850m MSL, -24.8°C, PID Active',
-    1: 'T+3s: RF Anomaly Detected — 2.437 GHz FHSS Burst at 4.2 km (DEFCON 3)',
-    2: 'T+6s: Multi-Sensor Fusion Lock — Acoustic (210Hz) + LWIR Optical Track (DEFCON 2)',
-    3: 'T+10s: PTZ Gimbal Auto-Slew & RF Disruption Advisory Recommended',
-    4: 'T+14s: Countermeasure Jamming Active — Target Speed 0 km/h (Threat Neutralized)',
+    0: 'T+0s: Baseline Sentry — FlySpark AGT3DRD5000X + USRP B210 ×3 sweeping, XBOOM A30TR1575 standby',
+    1: 'T+3s: USRP B210 AoA Fix — 2.437 GHz OcuSync burst detected, AoA bearing 042°, DEFCON 3',
+    2: 'T+6s: AGT3DRD5000X Ku-Band Track Confirmed + XBOOM AI Lock — DEFCON 2, Hostile Inbound',
+    3: 'T+10s: XBOOM A30TR1575 Slew-to-Cue + Guardian-S08 Directional Jam Advisory',
+    4: 'T+14s: Guardian-S08 180W EIRP Active — C2 Link Severed, Target Neutralized',
   };
 
   const hostileTrackTemplate: TargetTrack = {
@@ -51,9 +51,13 @@ export function useDemoEngine({
     rfFrequencyGhz: 2.437,
     rfProtocol: 'DJI OcuSync 3.0',
     rfSignalDbm: -74,
-    acousticHarmonicHz: 210,
-    acousticConfidence: 89,
+    aoaBearingDeg: 42.1,
+    tdoaTimeDiffNs: 14.6,
+    dfConfidencePct: 91,
+    kuBandReflectivity: -12.4,
+    radarCrossSection: 0.18,
     opticalConfidence: 94,
+    xboomLrfRangeM: 4198,
     fusionConfidence: 96,
     losBlocked: false,
     isTargetLocked: true,
@@ -65,7 +69,6 @@ export function useDemoEngine({
   const applyPhaseEffects = useCallback((phase: DemoPhase) => {
     switch (phase) {
       case 0: {
-        // Reset to nominal baseline
         setTracks((prev) => prev.filter((t) => t.id !== 'TRK-H-809' && t.id !== 'TRK-U-404'));
         setSelectedTrackId(null);
         setNetwork((prev: any) => ({ ...prev, defconLevel: 4, readinessState: 'OPTIMAL' }));
@@ -75,11 +78,12 @@ export function useDemoEngine({
           c2LinkJammingActive: false,
           videoDownlinkJammingActive: false,
           opticalGimbalLocked: false,
+          xboomAiTrackActive: false,
         }));
         break;
       }
       case 1: {
-        // RF Anomaly Detected
+        // USRP B210 AoA fix — unidentified RF
         const rfAnomalyTrack: TargetTrack = {
           id: 'TRK-U-404',
           callsign: 'UNID-RF-ANOMALY',
@@ -95,9 +99,13 @@ export function useDemoEngine({
           rfFrequencyGhz: 2.437,
           rfProtocol: 'DJI OcuSync 3.0',
           rfSignalDbm: -82,
-          acousticHarmonicHz: 205,
-          acousticConfidence: 54,
+          aoaBearingDeg: 41.8,
+          tdoaTimeDiffNs: 14.2,
+          dfConfidencePct: 72,
+          kuBandReflectivity: -15.2,
+          radarCrossSection: 0.09,
           opticalConfidence: 40,
+          xboomLrfRangeM: 4198,
           fusionConfidence: 62,
           losBlocked: false,
           isTargetLocked: false,
@@ -113,15 +121,15 @@ export function useDemoEngine({
         soundEngine?.playAnomalyChirp();
         addLogEvent({
           severity: 'WARNING',
-          sensorSource: 'SDR_SCANNER',
-          title: 'RF Spectrum Anomaly at 4.2 km',
-          details: 'AD9361 SDR detected 2.437 GHz FHSS bursts matching DJI OcuSync C2 protocol.',
+          sensorSource: 'USRP_B210',
+          title: 'USRP B210 — 2.437 GHz FHSS Burst at 4.2 km',
+          details: 'NI Ettus USRP B210 Unit-1 detected DJI OcuSync 3.0 FHSS burst. AoA fix: 041.8° ±2.1°. TDOA: 14.2ns. DF confidence: 72%. AGT3DRD5000X tasked to correlate.',
           targetId: 'TRK-U-404',
         });
         break;
       }
       case 2: {
-        // Multi-sensor fusion lock
+        // AGT3DRD5000X Ku-band track + XBOOM AI lock
         const activeHostile: TargetTrack = {
           ...hostileTrackTemplate,
           rangeMeters: 3100,
@@ -138,18 +146,20 @@ export function useDemoEngine({
         soundEngine?.playHostileAlert();
         addLogEvent({
           severity: 'ALERT',
-          sensorSource: 'RADAR_FUSION',
-          title: 'Hostile Incursion Confirmed (TRK-H-809)',
-          details: 'Acoustic 4-blade signature (210 Hz) + LWIR thermal signature confirmed DJI Matrice 300 RTK payload drone inbound.',
+          sensorSource: 'AGT3D_RADAR',
+          title: 'AGT3DRD5000X Ku-Band — Hostile Track Confirmed (TRK-H-809)',
+          details: 'FlySpark AGT3DRD5000X 3D radar correlated Ku-band RCS −12.4 dBsm (class: multi-rotor ~0.18m²). XBOOM A30TR1575 AI tracking engaged. Fusion confidence: 96%.',
           targetId: 'TRK-H-809',
         });
         break;
       }
       case 3: {
-        // Auto-slew PTZ Gimbal & Advisory
+        // XBOOM A30TR1575 slew-to-cue + Guardian-S08 advisory
         setCountermeasures((prev: any) => ({
           ...prev,
           opticalGimbalLocked: true,
+          xboomAiTrackActive: true,
+          xboomLrfRangingActive: true,
           opticalGimbalAzimuthDeg: 42,
           opticalGimbalElevationDeg: 14.5,
           jammingAzimuthDeg: 42,
@@ -161,6 +171,7 @@ export function useDemoEngine({
                   ...t,
                   rangeMeters: 2200,
                   isTargetLocked: true,
+                  xboomLrfRangeM: 2198,
                   history: [
                     ...t.history,
                     { x: 2200 * Math.sin(42 * Math.PI / 180), y: 2200 * Math.cos(42 * Math.PI / 180), timestamp: Date.now() },
@@ -172,21 +183,21 @@ export function useDemoEngine({
         soundEngine?.playHostileAlert();
         addLogEvent({
           severity: 'ALERT',
-          sensorSource: 'LWIR_OPTICS',
-          title: 'PTZ Gimbal Auto-Slewed & Locked',
-          details: 'Optical YOLO-v8 locked on target at 2.2 km. System recommends immediate Directional RF Jamming (2.4 GHz + GNSS L1).',
+          sensorSource: 'XBOOM_OPTICS',
+          title: 'XBOOM A30TR1575 — Slew-to-Cue + LRF: 2,198m',
+          details: 'XBOOM 30× EO + 5× IR thermal locked on TRK-H-809. LRF measured: 2,198m. AI tracking confidence: 94%. Guardian-S08 directional jaw advisory issued (042° azimuth, 180W).',
           targetId: 'TRK-H-809',
         });
         break;
       }
       case 4: {
-        // Deploy Mitigation & Neutralize
+        // Guardian-S08 full-power jam — neutralize
         setCountermeasures((prev: any) => ({
           ...prev,
           gnssJammingActive: true,
           c2LinkJammingActive: true,
           videoDownlinkJammingActive: true,
-          jammingPowerEirpWatts: 85,
+          jammingPowerEirpWatts: 180,
         }));
         setTracks((prev) =>
           prev.map((t) =>
@@ -205,14 +216,12 @@ export function useDemoEngine({
         );
         setNetwork((prev: any) => ({ ...prev, defconLevel: 4, readinessState: 'OPTIMAL' }));
         soundEngine?.playJammerPulse();
-        setTimeout(() => {
-          soundEngine?.playNeutralizedChime();
-        }, 600);
+        setTimeout(() => soundEngine?.playNeutralizedChime(), 600);
         addLogEvent({
           severity: 'SUCCESS',
-          sensorSource: 'COUNTERMEASURE',
-          title: 'Smart RF Disruption Active — C2 Link Severed',
-          details: 'Directional 85W EIRP jamming applied. Target C2 packet loss 100%, GNSS spoof lock active. Hostile drone forced to emergency descent.',
+          sensorSource: 'GUARDIAN_S08',
+          title: 'Guardian-S08 — 180W EIRP Active, C2 Link Severed',
+          details: 'FlySpark Guardian-S08 directional jam: 2.4 GHz + GNSS L1/L2 + 5.8 GHz. Target C2 packet loss 100%. GNSS spoof active. Hostile drone forced to emergency descent. Threat neutralized.',
           targetId: 'TRK-H-809',
         });
         break;
@@ -220,102 +229,56 @@ export function useDemoEngine({
     }
   }, [addLogEvent, setCountermeasures, setNetwork, setSelectedTrackId, setTracks]);
 
-  // Handle play / timer
   useEffect(() => {
     if (!demoState.isRunning) {
       if (timerRef.current) clearInterval(timerRef.current);
       return;
     }
-
     const intervalMs = 1000 / demoState.playbackSpeed;
-
     timerRef.current = setInterval(() => {
       setDemoState((prev) => {
         const nextSec = prev.elapsedSeconds + 1;
         let nextPhase: DemoPhase = prev.currentPhase;
-
         if (nextSec >= 14) nextPhase = 4;
         else if (nextSec >= 10) nextPhase = 3;
         else if (nextSec >= 6) nextPhase = 2;
         else if (nextSec >= 3) nextPhase = 1;
         else nextPhase = 0;
-
-        if (nextPhase !== prev.currentPhase) {
-          applyPhaseEffects(nextPhase);
-        }
-
-        // Auto-pause when scenario finishes at T+18s
+        if (nextPhase !== prev.currentPhase) applyPhaseEffects(nextPhase);
         if (nextSec >= 18) {
           return {
             ...prev,
             isRunning: false,
             elapsedSeconds: 18,
             currentPhase: 4,
-            phaseDescription: 'Incursion Neutralized — Mission Accomplished',
+            phaseDescription: 'Incursion Neutralized — Guardian-S08 Soft-Kill Successful',
           };
         }
-
-        return {
-          ...prev,
-          elapsedSeconds: nextSec,
-          currentPhase: nextPhase,
-          phaseDescription: phaseDescriptions[nextPhase],
-        };
+        return { ...prev, elapsedSeconds: nextSec, currentPhase: nextPhase, phaseDescription: phaseDescriptions[nextPhase] };
       });
     }, intervalMs);
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [demoState.isRunning, demoState.playbackSpeed, applyPhaseEffects]);
 
   const startDemo = () => {
-    setDemoState((prev) => ({
-      ...prev,
-      isRunning: true,
-      elapsedSeconds: 0,
-      currentPhase: 0,
-      phaseDescription: phaseDescriptions[0],
-    }));
+    setDemoState((prev) => ({ ...prev, isRunning: true, elapsedSeconds: 0, currentPhase: 0, phaseDescription: phaseDescriptions[0] }));
     applyPhaseEffects(0);
     soundEngine?.playRadarBlip();
   };
 
-  const pauseDemo = () => {
-    setDemoState((prev) => ({ ...prev, isRunning: false }));
-  };
-
-  const resumeDemo = () => {
-    setDemoState((prev) => ({ ...prev, isRunning: true }));
-  };
-
+  const pauseDemo = () => setDemoState((prev) => ({ ...prev, isRunning: false }));
+  const resumeDemo = () => setDemoState((prev) => ({ ...prev, isRunning: true }));
   const resetDemo = () => {
-    setDemoState({
-      isRunning: false,
-      currentPhase: 0,
-      elapsedSeconds: 0,
-      playbackSpeed: 1,
-      phaseDescription: phaseDescriptions[0],
-    });
+    setDemoState({ isRunning: false, currentPhase: 0, elapsedSeconds: 0, playbackSpeed: 1, phaseDescription: phaseDescriptions[0] });
     applyPhaseEffects(0);
   };
-
   const jumpToPhase = (phase: DemoPhase) => {
     const timeMap: Record<DemoPhase, number> = { 0: 0, 1: 3, 2: 6, 3: 10, 4: 14 };
-    setDemoState((prev) => ({
-      ...prev,
-      currentPhase: phase,
-      elapsedSeconds: timeMap[phase],
-      phaseDescription: phaseDescriptions[phase],
-    }));
+    setDemoState((prev) => ({ ...prev, currentPhase: phase, elapsedSeconds: timeMap[phase], phaseDescription: phaseDescriptions[phase] }));
     applyPhaseEffects(phase);
   };
+  const setPlaybackSpeed = (speed: 1 | 2 | 5) => setDemoState((prev) => ({ ...prev, playbackSpeed: speed }));
 
-  const setPlaybackSpeed = (speed: 1 | 2 | 5) => {
-    setDemoState((prev) => ({ ...prev, playbackSpeed: speed }));
-  };
-
-  // Manual target injection for interactive testing
   const injectCustomDrone = (type: 'HOSTILE' | 'UNIDENTIFIED' | 'FRIENDLY') => {
     const randomAzimuth = Math.floor(Math.random() * 360);
     const randomRange = Math.floor(1500 + Math.random() * 3000);
@@ -336,10 +299,14 @@ export function useDemoEngine({
       rfFrequencyGhz: 2.412,
       rfProtocol: type === 'HOSTILE' ? 'CRSF / ExpressLRS' : 'DJI OcuSync 3.0',
       rfSignalDbm: -72,
-      acousticHarmonicHz: 215,
-      acousticConfidence: 85,
-      opticalConfidence: 90,
-      fusionConfidence: 92,
+      aoaBearingDeg: randomAzimuth + (Math.random() - 0.5) * 4,
+      tdoaTimeDiffNs: 10 + Math.random() * 20,
+      dfConfidencePct: 72 + Math.random() * 20,
+      kuBandReflectivity: -14 + Math.random() * 4,
+      radarCrossSection: 0.08 + Math.random() * 0.15,
+      opticalConfidence: 80 + Math.random() * 15,
+      xboomLrfRangeM: randomRange - 2,
+      fusionConfidence: 85 + Math.random() * 10,
       losBlocked: false,
       isTargetLocked: false,
       isMitigated: false,
@@ -355,22 +322,13 @@ export function useDemoEngine({
       soundEngine?.playHostileAlert();
       addLogEvent({
         severity: 'ALERT',
-        sensorSource: 'RADAR_FUSION',
-        title: `Manual Hostile Target Injected (${customId})`,
-        details: `Simulated hostile drone at ${randomRange}m bearing ${randomAzimuth}°`,
+        sensorSource: 'AGT3D_RADAR',
+        title: `AGT3DRD5000X — Manual Hostile Inject (${customId})`,
+        details: `Simulated hostile at ${randomRange}m bearing ${randomAzimuth}°. USRP B210 AoA fix correlated.`,
         targetId: customId,
       });
     }
   };
 
-  return {
-    demoState,
-    startDemo,
-    pauseDemo,
-    resumeDemo,
-    resetDemo,
-    jumpToPhase,
-    setPlaybackSpeed,
-    injectCustomDrone,
-  };
+  return { demoState, startDemo, pauseDemo, resumeDemo, resetDemo, jumpToPhase, setPlaybackSpeed, injectCustomDrone };
 }

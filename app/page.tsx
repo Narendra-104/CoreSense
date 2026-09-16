@@ -15,6 +15,7 @@ import { AcousticBeamformingCard } from '@/components/sensors/AcousticBeamformin
 import { DualBandPtzOptics } from '@/components/sensors/DualBandPtzOptics';
 import { IncursionEventLog } from '@/components/sensors/IncursionEventLog';
 import { CountermeasureConsole } from '@/components/countermeasures/CountermeasureConsole';
+import { UsrpB210Panel } from '@/components/sensors/UsrpB210Panel';
 
 export default function MissionControlDashboard() {
   const {
@@ -25,6 +26,7 @@ export default function MissionControlDashboard() {
     setNetwork,
     countermeasures,
     setCountermeasures,
+    usrpUnits,
     tracks,
     setTracks,
     selectedTrackId,
@@ -37,6 +39,9 @@ export default function MissionControlDashboard() {
     setJammingPower,
     toggleGimbalLock,
     armNetLauncher,
+    setRwsFireMode,
+    authorizeRoe,
+    fireRwsBurst,
     triggerDefrostCycle,
   } = useTelemetryEngine();
 
@@ -59,7 +64,7 @@ export default function MissionControlDashboard() {
   });
 
   const [radarMode, setRadarMode] = useState<'POLAR' | 'TERRAIN'>('POLAR');
-  const [selectedRfBand, setSelectedRfBand] = useState<'2.4G' | '5.8G' | 'GNSS' | 'ALL'>('ALL');
+  const [selectedRfBand, setSelectedRfBand] = useState<'900M' | '2.4G' | '5.8G' | 'GNSS' | 'ALL'>('ALL');
 
   const selectedTrack = tracks.find((t) => t.id === selectedTrackId) || null;
   const hasHostileTarget = tracks.some((t) => t.threatLevel === 'HOSTILE' || t.threatLevel === 'CRITICAL' || t.threatLevel === 'NEUTRALIZED');
@@ -120,6 +125,7 @@ export default function MissionControlDashboard() {
           )}
 
           {/* Interlocked Countermeasure & Mitigation Console */}
+          {/* Interlocked Countermeasure & Mitigation Console */}
           <CountermeasureConsole
             state={countermeasures}
             onToggleGnss={toggleGnssJamming}
@@ -129,12 +135,15 @@ export default function MissionControlDashboard() {
             onToggleGimbal={toggleGimbalLock}
             onArmNetLauncher={armNetLauncher}
             onTriggerDefrost={triggerDefrostCycle}
+            onSetRwsFireMode={setRwsFireMode}
+            onAuthorizeRoe={authorizeRoe}
+            onFireRwsBurst={fireRwsBurst}
             onLogAction={(title, details, severity) =>
               addLogEvent({
                 title,
                 details,
                 severity,
-                sensorSource: 'COUNTERMEASURE',
+                sensorSource: 'GUARDIAN_S08',
               })
             }
           />
@@ -145,6 +154,9 @@ export default function MissionControlDashboard() {
 
         {/* Right Column: High-Altitude Core Telemetry & Multi-Sensor Fusion (5 Columns on XL) */}
         <div className="xl:col-span-5 flex flex-col space-y-3">
+          {/* NI Ettus USRP B210 Array Panel */}
+          <UsrpB210Panel units={usrpUnits} />
+
           {/* Dedicated High-Altitude Performance & Thermal Optimization Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <AtmosphericEngineCard telemetry={atmospheric} />
@@ -174,10 +186,10 @@ export default function MissionControlDashboard() {
             hasHostileSignal={hasHostileTarget}
           />
 
-          {/* 4-Mic Acoustic Beamforming Array */}
+          {/* USRP B210 Direction-Finding Card */}
           <AcousticBeamformingCard
-            hasHostileSound={hasHostileTarget}
-            confidence={selectedTrack ? selectedTrack.acousticConfidence : 0}
+            hasHostileSignal={hasHostileTarget}
+            confidence={selectedTrack ? selectedTrack.dfConfidencePct || 91 : 0}
           />
         </div>
       </main>

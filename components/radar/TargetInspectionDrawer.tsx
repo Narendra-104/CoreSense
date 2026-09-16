@@ -99,40 +99,40 @@ export const TargetInspectionDrawer: React.FC<TargetInspectionDrawerProps> = ({
           MULTI-SENSOR CORRELATION & SIGNATURE MATCH
         </span>
 
-        {/* RF Signature */}
+        {/* RF Signature / USRP B210 */}
         <div className="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
           <div className="flex items-center space-x-2.5">
             <Radio className="w-4 h-4 text-sky-600" />
             <div>
-              <span className="text-slate-900 font-semibold block text-[11px]">{track.rfProtocol}</span>
-              <span className="text-slate-500 text-[10px]">{track.rfFrequencyGhz} GHz | RSSI: {track.rfSignalDbm} dBm</span>
+              <span className="text-slate-900 font-semibold block text-[11px]">NI Ettus USRP B210 • {track.rfProtocol}</span>
+              <span className="text-slate-500 text-[10px]">{track.rfFrequencyGhz} GHz | AoA: {track.aoaBearingDeg || track.azimuthDeg}° | TDOA: {track.tdoaTimeDiffNs || 14.2}ns</span>
             </div>
           </div>
-          <span className="text-sky-700 font-bold text-[10px] bg-sky-50 border border-sky-200 px-2 py-0.5 rounded">SDR MATCH</span>
+          <span className="text-sky-700 font-bold text-[10px] bg-sky-50 border border-sky-200 px-2 py-0.5 rounded">{track.dfConfidencePct || 91}% DF</span>
         </div>
 
-        {/* Acoustic Signature */}
+        {/* Radar Signature / AGT3DRD5000X */}
         <div className="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
           <div className="flex items-center space-x-2.5">
-            <Volume2 className="w-4 h-4 text-amber-600" />
+            <Crosshair className="w-4 h-4 text-emerald-600" />
             <div>
-              <span className="text-slate-900 font-semibold block text-[11px]">Acoustic Rotor Harmonic</span>
-              <span className="text-slate-500 text-[10px]">Fundamental: {track.acousticHarmonicHz} Hz (4-Blade Quad)</span>
+              <span className="text-slate-900 font-semibold block text-[11px]">FlySpark AGT3DRD5000X • Ku-Band 3D</span>
+              <span className="text-slate-500 text-[10px]">RCS: {track.radarCrossSection || 0.18} m² ({track.kuBandReflectivity || -12.4} dBsm)</span>
             </div>
           </div>
-          <span className="text-amber-800 font-bold text-[10px] bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">{track.acousticConfidence}% CONF</span>
+          <span className="text-emerald-800 font-bold text-[10px] bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">3D LOCK</span>
         </div>
 
-        {/* Optical LWIR Signature */}
+        {/* Optical / XBOOM A30TR1575 */}
         <div className="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
           <div className="flex items-center space-x-2.5">
             <Camera className="w-4 h-4 text-purple-600" />
             <div>
-              <span className="text-slate-900 font-semibold block text-[11px]">Dual-Band PTZ YOLO-v8</span>
-              <span className="text-slate-500 text-[10px]">LWIR Microbolometer + Visible HD</span>
+              <span className="text-slate-900 font-semibold block text-[11px]">XBOOM A30TR1575 • Triple Sensor Gimbal</span>
+              <span className="text-slate-500 text-[10px]">30× EO / 5× IR | LRF: {track.xboomLrfRangeM || track.rangeMeters}m</span>
             </div>
           </div>
-          <span className="text-purple-800 font-bold text-[10px] bg-purple-50 border border-purple-200 px-2 py-0.5 rounded">{track.opticalConfidence}% CONF</span>
+          <span className="text-purple-800 font-bold text-[10px] bg-purple-50 border border-purple-200 px-2 py-0.5 rounded">{track.opticalConfidence}% AI</span>
         </div>
 
         {/* Sensor Fusion Aggregate */}
