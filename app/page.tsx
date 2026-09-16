@@ -7,14 +7,15 @@ import { CommandHeader } from '@/components/layout/CommandHeader';
 import { PolarRadarCanvas } from '@/components/radar/PolarRadarCanvas';
 import { TopographicalMapView } from '@/components/radar/TopographicalMapView';
 import { TargetInspectionDrawer } from '@/components/radar/TargetInspectionDrawer';
-import { AtmosphericEngineCard } from '@/components/thermal/AtmosphericEngineCard';
-import { PidThermalControllerCard } from '@/components/thermal/PidThermalControllerCard';
+import { HighAltitudeAtmosphericsCard } from '@/components/thermal/HighAltitudeAtmosphericsCard';
+import { AirDensityEngineCard } from '@/components/thermal/AirDensityEngineCard';
 import { LifePo4BatteryCard } from '@/components/thermal/LifePo4BatteryCard';
+import { PidThermalControllerCard } from '@/components/thermal/PidThermalControllerCard';
+import { CountermeasureConsole } from '@/components/countermeasures/CountermeasureConsole';
+import { DualBandPtzOptics } from '@/components/sensors/DualBandPtzOptics';
 import { RfSpectrumWaterfall } from '@/components/sensors/RfSpectrumWaterfall';
 import { AcousticBeamformingCard } from '@/components/sensors/AcousticBeamformingCard';
-import { DualBandPtzOptics } from '@/components/sensors/DualBandPtzOptics';
 import { IncursionEventLog } from '@/components/sensors/IncursionEventLog';
-import { CountermeasureConsole } from '@/components/countermeasures/CountermeasureConsole';
 import { UsrpB210Panel } from '@/components/sensors/UsrpB210Panel';
 
 export default function MissionControlDashboard() {
@@ -66,8 +67,16 @@ export default function MissionControlDashboard() {
   const [radarMode, setRadarMode] = useState<'POLAR' | 'TERRAIN'>('POLAR');
   const [selectedRfBand, setSelectedRfBand] = useState<'900M' | '2.4G' | '5.8G' | 'GNSS' | 'ALL'>('ALL');
 
-  const selectedTrack = tracks.find((t) => t.id === selectedTrackId) || null;
-  const hasHostileTarget = tracks.some((t) => t.threatLevel === 'HOSTILE' || t.threatLevel === 'CRITICAL' || t.threatLevel === 'NEUTRALIZED');
+  // Find inspected track or fallback to active hostile / first track
+  const activeTrack =
+    tracks.find((t) => t.id === selectedTrackId) ||
+    tracks.find((t) => t.threatLevel === 'HOSTILE' || t.threatLevel === 'CRITICAL') ||
+    tracks[0] ||
+    null;
+
+  const hasHostileTarget = tracks.some(
+    (t) => t.threatLevel === 'HOSTILE' || t.threatLevel === 'CRITICAL' || t.threatLevel === 'NEUTRALIZED'
+  );
   const isTargetMitigated = tracks.some((t) => t.isMitigated);
 
   return (
@@ -85,34 +94,46 @@ export default function MissionControlDashboard() {
         onInjectTarget={injectCustomDrone}
       />
 
-      {/* Main Mission Control Grid */}
-      <main className="flex-1 p-3 grid grid-cols-1 xl:grid-cols-12 gap-3 max-w-[1920px] mx-auto w-full">
-        {/* Left Column: Tactical Radar / Topography & Countermeasures (7 Columns on XL) */}
-        <div className="xl:col-span-7 flex flex-col space-y-3">
-          {/* Primary Visualization Area: Polar Radar or Mountain LOS Terrain */}
-          <div className="min-h-[460px] flex-1">
-            {radarMode === 'POLAR' ? (
-              <PolarRadarCanvas
-                tracks={tracks}
-                selectedTrackId={selectedTrackId}
-                onSelectTrack={setSelectedTrackId}
-                radarMode={radarMode}
-                setRadarMode={setRadarMode}
-              />
-            ) : (
-              <TopographicalMapView
-                tracks={tracks}
-                selectedTrackId={selectedTrackId}
-                onSelectTrack={setSelectedTrackId}
-                onSwitchToPolar={() => setRadarMode('POLAR')}
-              />
-            )}
-          </div>
+      {/* Main Dashboard Layout Arranged Exactly to User Hand-Drawn Spec */}
+      <main className="flex-1 p-3 flex flex-col space-y-3.5 max-w-[1920px] mx-auto w-full">
+        {/* ================= PAGE 1 LAYOUT ================= */}
 
-          {/* Target Inspector (when a track is selected) */}
-          {selectedTrack && (
+        {/* 1. Tactical 360° Polar Radar (Full Width Top Banner) */}
+        <section className="w-full h-[460px] lg:h-[500px]">
+          {radarMode === 'POLAR' ? (
+            <PolarRadarCanvas
+              tracks={tracks}
+              selectedTrackId={selectedTrackId}
+              onSelectTrack={setSelectedTrackId}
+              radarMode={radarMode}
+              setRadarMode={setRadarMode}
+            />
+          ) : (
+            <TopographicalMapView
+              tracks={tracks}
+              selectedTrackId={selectedTrackId}
+              onSelectTrack={setSelectedTrackId}
+              onSwitchToPolar={() => setRadarMode('POLAR')}
+            />
+          )}
+        </section>
+
+        {/* 2. Four-Card Row: Atmospherics | Air Density | LiFePO4 Battery | PID Thermal */}
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
+          <HighAltitudeAtmosphericsCard telemetry={atmospheric} />
+          <AirDensityEngineCard telemetry={atmospheric} />
+          <LifePo4BatteryCard telemetry={battery} />
+          <PidThermalControllerCard
+            telemetry={thermal}
+            onTriggerDefrost={triggerDefrostCycle}
+          />
+        </section>
+
+        {/* 3. Hostile - Matrice 300 / Target Inspection (Full Width Middle Banner) */}
+        <section className="w-full">
+          {activeTrack && (
             <TargetInspectionDrawer
-              track={selectedTrack}
+              track={activeTrack}
               onClose={() => setSelectedTrackId(null)}
               onAutoSlewGimbal={toggleGimbalLock}
               onEngageJammer={() => {
@@ -123,9 +144,10 @@ export default function MissionControlDashboard() {
               isJammingActive={countermeasures.c2LinkJammingActive || countermeasures.gnssJammingActive}
             />
           )}
+        </section>
 
-          {/* Interlocked Countermeasure & Mitigation Console */}
-          {/* Interlocked Countermeasure & Mitigation Console */}
+        {/* 4. Interlocked Countermeasure Engagement Console (Full Width Bottom Banner) */}
+        <section className="w-full">
           <CountermeasureConsole
             state={countermeasures}
             onToggleGnss={toggleGnssJamming}
@@ -147,51 +169,51 @@ export default function MissionControlDashboard() {
               })
             }
           />
+        </section>
 
-          {/* Live Incursion Audit Log */}
-          <IncursionEventLog events={logEvents} />
-        </div>
+        {/* ================= PAGE 2 LAYOUT ================= */}
 
-        {/* Right Column: High-Altitude Core Telemetry & Multi-Sensor Fusion (5 Columns on XL) */}
-        <div className="xl:col-span-5 flex flex-col space-y-3">
-          {/* NI Ettus USRP B210 Array Panel */}
-          <UsrpB210Panel units={usrpUnits} />
-
-          {/* Dedicated High-Altitude Performance & Thermal Optimization Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <AtmosphericEngineCard telemetry={atmospheric} />
-            <PidThermalControllerCard
-              telemetry={thermal}
-              onTriggerDefrost={triggerDefrostCycle}
+        {/* 5. Three Sensor Fusion Cards: Dual-Band PTZ Optics | SDR RF Waterfall | 4-Mic Acoustic (AoA/DF) */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full pt-1">
+          {/* Dual-Band PTZ Optics Gimbal (XBOOM A30TR1575) */}
+          <div className="h-full">
+            <DualBandPtzOptics
+              isLocked={countermeasures.opticalGimbalLocked}
+              azimuthDeg={countermeasures.opticalGimbalAzimuthDeg}
+              elevationDeg={countermeasures.opticalGimbalElevationDeg}
+              hasHostileTarget={hasHostileTarget}
+              isMitigated={isTargetMitigated}
             />
           </div>
 
-          {/* LiFePO4 Cold-Discharge Power System */}
-          <LifePo4BatteryCard telemetry={battery} />
+          {/* SDR RF Spectrum & Waterfall (NI Ettus USRP B210) */}
+          <div className="h-full">
+            <RfSpectrumWaterfall
+              isJammingActive={countermeasures.c2LinkJammingActive || countermeasures.gnssJammingActive}
+              selectedBand={selectedRfBand}
+              setSelectedBand={setSelectedRfBand}
+              hasHostileSignal={hasHostileTarget}
+            />
+          </div>
 
-          {/* Dual-Band PTZ Optics (LWIR + Visible) Feed */}
-          <DualBandPtzOptics
-            isLocked={countermeasures.opticalGimbalLocked}
-            azimuthDeg={countermeasures.opticalGimbalAzimuthDeg}
-            elevationDeg={countermeasures.opticalGimbalElevationDeg}
-            hasHostileTarget={hasHostileTarget}
-            isMitigated={isTargetMitigated}
-          />
+          {/* Direction-Finding / 4-Mic AoA Array */}
+          <div className="h-full">
+            <AcousticBeamformingCard
+              hasHostileSignal={hasHostileTarget}
+              confidence={activeTrack ? activeTrack.dfConfidencePct || 91 : 0}
+            />
+          </div>
+        </section>
 
-          {/* SDR RF Spectrum & Dynamic Waterfall Visualizer */}
-          <RfSpectrumWaterfall
-            isJammingActive={countermeasures.c2LinkJammingActive || countermeasures.gnssJammingActive}
-            selectedBand={selectedRfBand}
-            setSelectedBand={setSelectedRfBand}
-            hasHostileSignal={hasHostileTarget}
-          />
+        {/* NI Ettus USRP B210 Hardware Health Strip */}
+        <section className="w-full">
+          <UsrpB210Panel units={usrpUnits} />
+        </section>
 
-          {/* USRP B210 Direction-Finding Card */}
-          <AcousticBeamformingCard
-            hasHostileSignal={hasHostileTarget}
-            confidence={selectedTrack ? selectedTrack.dfConfidencePct || 91 : 0}
-          />
-        </div>
+        {/* 6. Incursion & Telemetry Audit Log (Full Width Card) */}
+        <section className="w-full pb-4">
+          <IncursionEventLog events={logEvents} />
+        </section>
       </main>
     </div>
   );
