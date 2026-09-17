@@ -17,6 +17,7 @@ import { RfSpectrumWaterfall } from '@/components/sensors/RfSpectrumWaterfall';
 import { AcousticBeamformingCard } from '@/components/sensors/AcousticBeamformingCard';
 import { IncursionEventLog } from '@/components/sensors/IncursionEventLog';
 import { UsrpB210Panel } from '@/components/sensors/UsrpB210Panel';
+import { RwsHardKillPanel } from '@/components/hardkill/RwsHardKillPanel';
 
 export default function MissionControlDashboard() {
   const {
@@ -155,11 +156,7 @@ export default function MissionControlDashboard() {
             onToggleVideo={toggleVideoJamming}
             onSetPower={setJammingPower}
             onToggleGimbal={toggleGimbalLock}
-            onArmNetLauncher={armNetLauncher}
             onTriggerDefrost={triggerDefrostCycle}
-            onSetRwsFireMode={setRwsFireMode}
-            onAuthorizeRoe={authorizeRoe}
-            onFireRwsBurst={fireRwsBurst}
             onLogAction={(title, details, severity) =>
               addLogEvent({
                 title,
@@ -205,12 +202,30 @@ export default function MissionControlDashboard() {
           </div>
         </section>
 
+        {/* 6. 35–40mm RWS — AHEAD-Class Airburst Hard-Kill System (Moved Below the 3 Sensor Cards) */}
+        <section className="w-full">
+          <RwsHardKillPanel
+            state={countermeasures.rws}
+            onSetRwsFireMode={setRwsFireMode}
+            onAuthorizeRoe={authorizeRoe}
+            onFireRwsBurst={fireRwsBurst}
+            onLogAction={(title, details, severity) =>
+              addLogEvent({
+                title,
+                details,
+                severity,
+                sensorSource: 'RWS_HARDKILL',
+              })
+            }
+          />
+        </section>
+
         {/* NI Ettus USRP B210 Hardware Health Strip */}
         <section className="w-full">
           <UsrpB210Panel units={usrpUnits} />
         </section>
 
-        {/* 6. Incursion & Telemetry Audit Log (Full Width Card) */}
+        {/* 7. Incursion & Telemetry Audit Log (Full Width Card) */}
         <section className="w-full pb-4">
           <IncursionEventLog events={logEvents} />
         </section>
