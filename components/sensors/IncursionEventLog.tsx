@@ -85,9 +85,9 @@ export const IncursionEventLog: React.FC<IncursionEventLogProps> = ({ events }) 
       </div>
 
       {/* Events Table */}
-      <div className="h-[170px] overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
+      <div className="h-[220px] overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
         {filteredEvents.length === 0 ? (
-          <div className="text-center py-6 text-[11px] text-slate-400">
+          <div className="text-center py-6 text-[11px] text-slateate-400">
             No events match current filter.
           </div>
         ) : (
@@ -103,6 +103,26 @@ export const IncursionEventLog: React.FC<IncursionEventLogProps> = ({ events }) 
               : isSuccess
               ? 'border-l-emerald-500 bg-emerald-50/60 border-emerald-200'
               : 'border-l-sky-500 bg-slate-50 border-slate-200';
+
+            // Color-coded sensor source badge per hardware unit
+            const sensorBadge = (() => {
+              switch (evt.sensorSource) {
+                case 'USRP_B210':
+                  return 'bg-sky-100 text-sky-800 border-sky-200';
+                case 'AGT3D_RADAR':
+                  return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                case 'XBOOM_OPTICS':
+                  return 'bg-purple-100 text-purple-800 border-purple-200';
+                case 'RADAR_FUSION':
+                  return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+                case 'GUARDIAN_S08':
+                  return 'bg-amber-100 text-amber-800 border-amber-200';
+                case 'RWS_HARDKILL':
+                  return 'bg-rose-100 text-rose-800 border-rose-200';
+                default:
+                  return 'bg-slate-100 text-slate-700 border-slate-200';
+              }
+            })();
 
             return (
               <div
@@ -124,7 +144,7 @@ export const IncursionEventLog: React.FC<IncursionEventLogProps> = ({ events }) 
                     <div className="flex items-center space-x-2">
                       <span className="font-bold text-slate-900">{evt.title}</span>
                       {evt.targetId && (
-                        <span className="text-[9px] bg-slate-200 text-slate-800 px-1.5 py-0.2 rounded font-semibold">
+                        <span className="text-[9px] bg-slate-200 text-slate-800 px-1.5 py-0.5 rounded font-semibold">
                           {evt.targetId}
                         </span>
                       )}
@@ -133,9 +153,9 @@ export const IncursionEventLog: React.FC<IncursionEventLogProps> = ({ events }) 
                   </div>
                 </div>
 
-                <div className="text-right flex-shrink-0">
+                <div className="text-right flex-shrink-0 space-y-0.5">
                   <span className="text-[9px] text-slate-500 block">{evt.timestamp}</span>
-                  <span className="text-[8px] text-slate-600 bg-white px-1.5 py-0.5 rounded border border-slate-200 font-semibold">
+                  <span className={`text-[8px] px-1.5 py-0.5 rounded border font-semibold ${sensorBadge}`}>
                     {evt.sensorSource}
                   </span>
                 </div>

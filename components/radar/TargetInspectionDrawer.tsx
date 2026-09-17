@@ -5,10 +5,11 @@ import { TargetTrack } from '@/types/dashboard';
 import {
   Crosshair,
   Radio,
-  Volume2,
   Camera,
   Zap,
   X,
+  Shield,
+  Activity,
 } from 'lucide-react';
 
 interface TargetInspectionDrawerProps {
@@ -28,7 +29,14 @@ export const TargetInspectionDrawer: React.FC<TargetInspectionDrawerProps> = ({
   isGimbalLocked,
   isJammingActive,
 }) => {
-  if (!track) return null;
+  if (!track) {
+    return (
+      <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-sm flex flex-col items-center justify-center space-y-2 font-mono min-h-[80px]">
+        <Activity className="w-5 h-5 text-slate-300" />
+        <span className="text-[11px] text-slate-400 font-semibold tracking-wide">NO ACTIVE TRACK — SELECT TARGET ON RADAR</span>
+      </div>
+    );
+  }
 
   const isHostile = track.threatLevel === 'HOSTILE' || track.threatLevel === 'CRITICAL';
   const isElevated = track.threatLevel === 'ELEVATED';
@@ -45,12 +53,19 @@ export const TargetInspectionDrawer: React.FC<TargetInspectionDrawerProps> = ({
     ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold'
     : 'bg-sky-100 text-sky-800 border-sky-300 font-bold';
 
+  // Estimated intercept time based on range and speed
+  const speedMs = (track.groundSpeedKmh * 1000) / 3600;
+  const interceptSec = speedMs > 0 ? Math.round(track.rangeMeters / speedMs) : 999;
+  const interceptMin = Math.floor(interceptSec / 60);
+  const interceptSecRem = interceptSec % 60;
+  const interceptLabel = `${interceptMin}m ${interceptSecRem}s`;
+
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-sm flex flex-col space-y-3 font-mono">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
         <div className="flex items-center space-x-2">
-          <Crosshair className={`w-4 h-4 ${isHostile ? 'text-rose-600' : 'text-emerald-600'}`} />
+          <Crosshair className={`w-4 h-4 ${isHostile ? 'text-rose-600 animate-pulse' : 'text-emerald-600'}`} />
           <div>
             <div className="flex items-center space-x-2">
               <span className="text-xs font-bold text-slate-900 tracking-wide">{track.callsign}</span>
@@ -73,23 +88,31 @@ export const TargetInspectionDrawer: React.FC<TargetInspectionDrawerProps> = ({
         </div>
       </div>
 
-      {/* Kinematics Grid */}
-      <div className="grid grid-cols-4 gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[11px]">
+      {/* Kinematics Grid — 6-cell */}
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[11px]">
         <div>
           <span className="text-slate-500 block text-[9px] font-medium">RANGE</span>
           <span className="text-slate-900 font-bold">{track.rangeMeters.toLocaleString()} m</span>
         </div>
         <div>
-          <span className="text-slate-500 block text-[9px] font-medium">AZIMUTH / ELEV</span>
+          <span className="text-slate-500 block text-[9px] font-medium">AZ / ELEV</span>
           <span className="text-sky-700 font-bold">{track.azimuthDeg}° / {track.elevationDeg}°</span>
         </div>
         <div>
-          <span className="text-slate-500 block text-[9px] font-medium">ALT (MSL / AGL)</span>
+          <span className="text-slate-500 block text-[9px] font-medium">ALT MSL / AGL</span>
           <span className="text-amber-700 font-bold">{track.altitudeMslMeters}m / {track.altitudeAglMeters}m</span>
         </div>
         <div>
           <span className="text-slate-500 block text-[9px] font-medium">GROUND SPEED</span>
           <span className="text-emerald-700 font-bold">{track.groundSpeedKmh} km/h</span>
+        </div>
+        <div>
+          <span className="text-slate-500 block text-[9px] font-medium">INTERCEPT ETA</span>
+          <span className={`font-bold ${isHostile ? 'text-rose-700' : 'text-slate-700'}`}>{interceptLabel}</span>
+        </div>
+        <div>
+          <span className="text-slate-500 block text-[9px] font-medium">CLASSIFICATION</span>
+          <span className="text-slate-800 font-bold text-[10px]">{track.classification?.replace('_', ' ')}</span>
         </div>
       </div>
 

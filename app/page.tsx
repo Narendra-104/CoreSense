@@ -130,21 +130,19 @@ export default function MissionControlDashboard() {
           />
         </section>
 
-        {/* 3. Hostile - Matrice 300 / Target Inspection (Full Width Middle Banner) */}
+        {/* 3. Target Inspection — always shown; shows placeholder when no track selected */}
         <section className="w-full">
-          {activeTrack && (
-            <TargetInspectionDrawer
-              track={activeTrack}
-              onClose={() => setSelectedTrackId(null)}
-              onAutoSlewGimbal={toggleGimbalLock}
-              onEngageJammer={() => {
-                toggleC2Jamming();
-                toggleGnssJamming();
-              }}
-              isGimbalLocked={countermeasures.opticalGimbalLocked}
-              isJammingActive={countermeasures.c2LinkJammingActive || countermeasures.gnssJammingActive}
-            />
-          )}
+          <TargetInspectionDrawer
+            track={activeTrack}
+            onClose={() => setSelectedTrackId(null)}
+            onAutoSlewGimbal={toggleGimbalLock}
+            onEngageJammer={() => {
+              toggleC2Jamming();
+              toggleGnssJamming();
+            }}
+            isGimbalLocked={countermeasures.opticalGimbalLocked}
+            isJammingActive={countermeasures.c2LinkJammingActive || countermeasures.gnssJammingActive}
+          />
         </section>
 
         {/* 4. Interlocked Countermeasure Engagement Console (Full Width Bottom Banner) */}
