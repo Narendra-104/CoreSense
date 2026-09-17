@@ -55,6 +55,12 @@ export interface AtmosphericTelemetry {
   windSpeedKmh: number;
   windDirectionDeg: number;
   relativeHumidityPct: number;
+  isaTempOffsetC?: number;
+  isaPressureOffsetKpa?: number;
+  headwindKmh?: number;
+  crosswindKmh?: number;
+  relativeWindAngleDeg?: number;
+  densityDropPct?: number;
 }
 
 export interface ThermalZone {
@@ -105,6 +111,12 @@ export interface LifePo4Telemetry {
   internalHeatingPadsActive: boolean;
   solarMpptWatts: number;
   backupFuelCellOnline: boolean;
+  usableAhReservePreheated?: number;
+  usableAhReserveColdSoak?: number;
+  capacityLossRawPct?: number;
+  capacityBufferGainAh?: number;
+  powerWatts?: number;
+  cRate?: number;
   cells: BatteryCell[];
 }
 

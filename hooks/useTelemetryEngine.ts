@@ -9,6 +9,11 @@ import {
   IncursionLogEvent,
   UsrpUnit,
 } from '@/types/dashboard';
+import {
+  calculateAtmospherics,
+  calculateAirDensityMetrics,
+  calculateLiFePo4Power,
+} from '@/utils/physicsEngine';
 
 export function useTelemetryEngine() {
   // Atmospheric Telemetry — Ladakh Sector, 4,850m MSL
@@ -251,20 +256,58 @@ export function useTelemetryEngine() {
   useEffect(() => {
     const interval = setInterval(() => {
       tickRef.current += 1;
-      const t = tickRef.current;
+      const t = tickRef.current * 0.5; // 500ms per tick
 
       const tempDrift = Math.sin(t * 0.1) * 0.15;
       const currentAmbient = -24.8 + tempDrift;
       const pressure = 54.2 + Math.cos(t * 0.08) * 0.05;
-      const tKelvin = currentAmbient + 273.15;
-      const calculatedRho = (pressure * 1000) / (287.058 * tKelvin);
+      const currentWind = 42.0 + Math.sin(t * 0.2) * 3.5;
+      const currentWindDir = 315;
+
+      // Run dynamic physics equations
+      const atmoCalc = calculateAtmospherics({
+        ambientTempC: currentAmbient,
+        barometricPressureKpa: pressure,
+        windSpeedKmh: currentWind,
+        windDirectionDeg: currentWindDir,
+        altitudeMsl: 4850,
+        referenceHeadingDeg: 42,
+      });
+
+      const densityCalc = calculateAirDensityMetrics({
+        ambientTempC: currentAmbient,
+        barometricPressureKpa: pressure,
+      });
+
+      const packVolt = 51.2 - (t * 0.0002);
+      const packAmps = -6.42 + Math.sin(t * 0.15) * 0.4;
+      const coreTemp = 18.5 + Math.sin(t * 0.05) * 0.2;
+
+      const powerCalc = calculateLiFePo4Power({
+        batteryVoltageV: packVolt,
+        packCurrentA: packAmps,
+        coreTempC: coreTemp,
+        thermalJacketActive: true,
+        nominalCapacityAh: 100,
+        ambientTempC: currentAmbient,
+      });
 
       setAtmospheric((prev) => ({
         ...prev,
         ambientTempC: parseFloat(currentAmbient.toFixed(1)),
         barometricPressureKpa: parseFloat(pressure.toFixed(2)),
-        airDensityKgM3: parseFloat(calculatedRho.toFixed(3)),
-        windSpeedKmh: parseFloat((42.0 + Math.sin(t * 0.2) * 3.5).toFixed(1)),
+        airDensityKgM3: densityCalc.airDensityKgM3,
+        densityAltitudeRatio: densityCalc.densityRatio,
+        rotorLiftDeficitPct: densityCalc.rotorLiftDeficitPct,
+        throttleCurrentMultiplier: densityCalc.throttleCurrentMultiplier,
+        aerodynamicStallRisk: densityCalc.bladeStallMarginRisk as any,
+        windSpeedKmh: parseFloat(currentWind.toFixed(1)),
+        windDirectionDeg: currentWindDir,
+        isaTempOffsetC: atmoCalc.isaTempOffsetC,
+        isaPressureOffsetKpa: atmoCalc.isaPressureOffsetKpa,
+        headwindKmh: atmoCalc.headwindKmh,
+        crosswindKmh: atmoCalc.crosswindKmh,
+        densityDropPct: densityCalc.densityDropPct,
       }));
 
       setThermal((prev) => {
@@ -281,7 +324,16 @@ export function useTelemetryEngine() {
 
       setBattery((prev) => ({
         ...prev,
-        packVoltage: parseFloat((51.2 - (t * 0.0005)).toFixed(2)),
+        packVoltage: parseFloat(packVolt.toFixed(2)),
+        packCurrentA: parseFloat(packAmps.toFixed(2)),
+        stateOfChargePct: powerCalc.stateOfChargePct,
+        internalCoreTempC: parseFloat(coreTemp.toFixed(1)),
+        preheatedCapacityAh: powerCalc.usableAhReservePreheated,
+        coldSoakRawCapacityAh: powerCalc.usableAhReserveColdSoak,
+        capacityLossRawPct: powerCalc.capacityLossRawPct,
+        capacityBufferGainAh: powerCalc.capacityBufferGainAh,
+        powerWatts: powerCalc.powerWatts,
+        cRate: powerCalc.cRate,
         solarMpptWatts: Math.max(280, Math.floor(340 + Math.sin(t * 0.1) * 20)),
       }));
 
@@ -297,8 +349,8 @@ export function useTelemetryEngine() {
       setTracks((prevTracks) =>
         prevTracks.map((trk) => {
           if (trk.id === 'TRK-F-102') {
-            const nextAzimuth = (trk.azimuthDeg + 0.15) % 360;
-            const nextRange = trk.rangeMeters + Math.sin(t * 0.1) * 3;
+            const nextAzimuth = (trk.azimuthDeg + 0.08) % 360;
+            const nextRange = trk.rangeMeters + Math.sin(t * 0.1) * 1.5;
             const x = nextRange * Math.sin(nextAzimuth * Math.PI / 180);
             const y = nextRange * Math.cos(nextAzimuth * Math.PI / 180);
             return {
@@ -312,7 +364,7 @@ export function useTelemetryEngine() {
           return trk;
         })
       );
-    }, 1000);
+    }, 500);
 
     return () => clearInterval(interval);
   }, []);
